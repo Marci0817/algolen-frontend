@@ -86,11 +86,16 @@ function connectWallet() {
             : value.substring(0, 4) + "..." + value.substring(value.length - 4);
     }
 
+    function value(value: string | null): string {
+        return value === null ? "Not defined." : value;
+    }
+
     return {
         subscribe,
         handleConnectWalletClick,
         handleDisconnectWalletClick,
         getFormattedValue: () => formattedValue(get(store)),
+        getValue: () => value(get(store)),
     };
 }
 
