@@ -34,7 +34,7 @@
 {:else}
     <button
         on:click={walletConnect}
-        class="border-1 rounded-lg bg-blue-500 px-4 py-2 drop-shadow-lg text-white m-4 hover:scale-105 duration-150 hover:drop-shadow-xl"
-        >Connect Wallet</button
+        class="border-1 rounded-lg bg-black border-2 border-sec drop-shadow-neon text-sec font-bold px-4 py-2 m-4"
+        ><p class="bg-clip-text drop-shadow-neon">Connect Wallet</p></button
     >
 {/if}

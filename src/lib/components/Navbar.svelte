@@ -37,7 +37,7 @@
                         .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
                         .do();
 
-                    //if (assetInfo.asset.params.token === 1) { // TODO: Delete this comment
+                    //if (assetInfo.asset.params.total === 1 && assetInfo.asset.params.decimals === 0) { // TODO: Delete this comment
                     assetsName = [...assetsName, assetInfo.asset.params.name];
                     //}
                 }
@@ -46,13 +46,18 @@
     }
 </script>
 
-<div class="flex justify-between items-center mx-20 mt-8 font-quicksand">
+<div
+    class="flex justify-between items-center mx-20 mt-8 font-primary text-white"
+>
     <div class="">
-        <h1 class="font-bold text-3xl">Fractic.</h1>
-        <p class="text-md text-gray-700">Best service</p>
+        <h1
+            class="font-extrabold text-4xl bg-clip-text bg-gradient-to-r text-transparent from-prim to-sec"
+        >
+            Fractic
+        </h1>
     </div>
     <div>
-        <ul class="flex flex-row font-semibold">
+        <ul class="flex flex-row font-medium">
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
@@ -80,7 +85,6 @@
             </div>
             <li class="mx-4 cursor-pointer">Community</li>
             <li class="mx-4 cursor-pointer">Support</li>
-            <li class="mx-4 cursor-pointer">Credits</li>
         </ul>
     </div>
     <div>
