@@ -5,7 +5,7 @@
 
 <svelte:head>
     <meta charset="UTF-8" />
-    <title>Boilerplate | localhost.com</title>
+    <title>Fractic | localhost.com</title>
     <meta
         name="keywords"
         content="web3, web3 service, service, algorand service, algorand webservice, algo, algorand, algorand app"
