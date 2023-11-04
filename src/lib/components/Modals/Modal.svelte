@@ -7,7 +7,7 @@
 {#if $modals.length > 0}
     <div
         transition:fade|local={{ duration: 150 }}
-        class="modal_container fixed left-0 top-0 z-50 h-screen w-screen bg-gray-900 bg-opacity-75"
+        class="modal_container fixed left-0 top-0 z-50 h-screen w-full bg-black bg-opacity-80"
     >
         {#each $modals as modal, i}
             <div
