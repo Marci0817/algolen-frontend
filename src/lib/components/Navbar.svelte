@@ -47,13 +47,14 @@
 </script>
 
 <div
-    class="flex justify-between items-center mx-20 mt-8 font-primary text-white"
+    class="flex justify-between items-center mx-20 sm:mt-8 mt-2 font-primary text-white"
 >
     <div class="">
         <h1
             class="font-extrabold text-4xl bg-clip-text bg-gradient-to-r text-transparent from-prim to-sec"
         >
-            Fractic
+            <p class="sm:hidden block">FRC</p>
+            <p class="hidden sm:block">Fractic</p>
         </h1>
     </div>
     <div>
@@ -70,15 +71,20 @@
                 }}
             >
                 <li class=" cursor-pointer">Fractionalize</li>
+
                 {#if isShowSubMenu}
                     <div
                         in:fade={{ duration: 100 }}
                         class="absolute bg-gray-100 rounded-md p-2 px-3 drop-shadow-md font-medium"
                     >
                         <ul>
-                            {#each assetsName as assetName}
-                                <li>{assetName}</li>
-                            {/each}
+                            {#if assetsName.length > 0}
+                                {#each assetsName as assetName}
+                                    <li>{assetName}</li>
+                                {/each}
+                            {:else}
+                                <li class="text-black">You dont have assets</li>
+                            {/if}
                         </ul>
                     </div>
                 {/if}
