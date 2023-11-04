@@ -12,6 +12,7 @@ export default {
             },
             dropShadow: {
                 neon: "0 0px 4px #FF26CE",
+                neonPrim: "0 0px 4px #3DD1FF",
             },
         },
     },
