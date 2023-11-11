@@ -2,19 +2,18 @@
     import { walletAddress } from "$lib/stores/walletStore";
     import { modals } from "$lib/components/Modals/modal";
     import WalletSwitcher from "$lib/components/Modals/WalletSwitcher.svelte";
-    import { get } from "svelte/store";
 
     function walletConnect() {
         modals.push(WalletSwitcher, {});
     }
 
     function walletDisconnect() {
-        walletAddress.handleDisconnectWalletClick();
+        walletAddress?.handleDisconnectWalletClick();
     }
 
     function copyWallet() {
         navigator.clipboard.writeText(
-            typeof walletAddress.getFormattedValue() === "string"
+            typeof walletAddress?.getFormattedValue() === "string"
                 ? walletAddress.getValue()
                 : ""
         );
@@ -23,7 +22,7 @@
 
 {#if $walletAddress}
     <button class="cursor-pointer" on:click={copyWallet}>
-        {walletAddress.getFormattedValue()}
+        {walletAddress?.getFormattedValue()}
     </button>
     <br />
     <button
