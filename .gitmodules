@@ -1,0 +1,3 @@
+[submodule "algolen-contracts"]
+	path = algolen-contracts
+	url = https://github.com/D0rs4n/algolen-contracts
