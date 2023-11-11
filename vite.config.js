@@ -4,6 +4,7 @@ import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfil
 import commonjs from "@rollup/plugin-commonjs";
 
 export default defineConfig({
+    global: {},
     plugins: [sveltekit(), commonjs()],
     optimizeDeps: {
         //For the wallets
