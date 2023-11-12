@@ -22,7 +22,6 @@ export async function getAlgolenListingBoxes(algodClient: algosdk.Algodv2): Prom
     let boxes = await algodClient.getApplicationBoxes(parseInt(env.PUBLIC_APP_ID)).do();
     const boxNames: Uint8Array[] = boxes.boxes.map((box) => box.name);
     for(const boxName of boxNames) {
-        console.log(boxName)
         let encodedValue = await algodClient.getApplicationBoxByName(parseInt(env.PUBLIC_APP_ID), boxName as unknown as Uint8Array).do();
         try {
             let decodedValue = ALGOLENLISTINGCODEC.decode(encodedValue.value);
@@ -44,7 +43,7 @@ export async function getAlgolenRentBoxes(algodClient: algosdk.Algodv2): Promise
     let resultset: AlgolenRent[] = [];
     let boxes = await algodClient.getApplicationBoxes(parseInt(env.PUBLIC_APP_ID)).do();
     const boxNames: Uint8Array[] = boxes.boxes.map((box) => box.name);
-    for(const boxName in boxNames) {
+    for(const boxName of boxNames) {
         let encodedValue = await algodClient.getApplicationBoxByName(parseInt(env.PUBLIC_APP_ID), boxName as unknown as Uint8Array).do();
         try {
             let decodedValue = ALGOLENRENTCODEC.decode(encodedValue.value);

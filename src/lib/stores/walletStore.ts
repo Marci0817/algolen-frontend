@@ -97,7 +97,7 @@ function connectWallet() {
         }
 
         function value(value: string | null): string {
-            return value === null ? "Not defined." : value;
+            return value === null ? undefined : value;
         }
 
         return {
