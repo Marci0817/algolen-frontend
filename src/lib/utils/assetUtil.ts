@@ -1,6 +1,7 @@
 import type { Asset } from "algosdk/dist/types/client/v2/algod/models/types";
-import { getAlgolenListingBoxes, type AlgolenListing } from "./boxUtil";
+import { getAlgolenListingBoxes } from "./boxUtil";
 import type algosdk from "algosdk";
+import type { AlgolenListing } from "./types";
 
 export const fetchAsset = async (asset_id, algodClient): Promise<Asset> => {
   const indexerAssetInfo = await algodClient.lookupAssetByID(asset_id).do();

@@ -2,29 +2,13 @@ import { env } from "$env/dynamic/public";
 import algosdk from "algosdk";
 import { EncodedUInt64ToString } from "./encoding";
 import { fetchAsset } from "./assetUtil";
+import type { AlgolenListing, AlgolenRent } from "./types";
 const ALGOLENLISTINGCODEC = algosdk.ABIType.from(
   "(uint64,uint64,uint64,address)"
 );
 const ALGOLENRENTCODEC = algosdk.ABIType.from(
   "(uint64,uint64,address,address)"
 );
-
-export interface AlgolenListing {
-  asset_id: string;
-  name: string;
-  url: string;
-  deposit: Number;
-  price_per_day: Number;
-  max_duration_in_days: Number;
-  owner: string;
-}
-
-interface AlgolenRent {
-  end_date: BigInt;
-  deposit: BigInt;
-  asset_owner: string;
-  asset_renter: string;
-}
 
 export async function getAlgolenListingBoxes(
   algodClient: algosdk.Algodv2,
