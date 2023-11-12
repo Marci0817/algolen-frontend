@@ -1,23 +1,40 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
   import Button from "./shared/Button.svelte";
-
+  import type { AlgolenListing } from "$lib/utils/types";
   enum Status {
     RENTED = "Rented",
     EXPIRED = "Expired",
   }
 
   interface Data {
+    asset_id: string;
     name: string;
-    image: string;
-    time?: number;
-    rent?: number;
-    status?: Status;
+    url: string;
+    deposit?: Number;
+    price_per_day?: Number;
+    max_duration_in_days?: Number;
+    owner?: string;
+    end_date?: Number;
+    asset_owner?: string;
+    asset_renter?: string;
   }
 
   export let data: Data = {
+    asset_id: "Loading...",
     name: "Loading...",
-    image: "https://picsum.photos/200/300", // loading image
+    url: "",
+  };
+
+  const getTime = (time: Number) => {
+    let date = new Date(time as number);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "numeric",
+      minute: "numeric",
+    }).format(date);
   };
 
   const handleClick = () => {
@@ -32,7 +49,7 @@
   <div class="flex-shrink-0">
     <figure class="">
       <img
-        src={data.image}
+        src={data.url}
         alt={data.name}
         class="h-auto w-16 object-cover rounded-xl"
       />
@@ -41,6 +58,9 @@
 
   <div class="flex-grow ml-4">
     <div class="font-bold text-md">{data.name}</div>
+    <div>
+      {getTime(data.end_date)}
+    </div>
 
     <div class="flex flex-row items-center justify-between">
       <div class="flex-col text-sm" />

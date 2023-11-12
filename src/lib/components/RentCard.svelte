@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from "./shared/Button.svelte";
-  import type { AlgolenListing } from "$lib/utils/boxUtil";
+  import type { AlgolenListing } from "$lib/utils/types";
 
   export let data: AlgolenListing = {
     asset_id: "Loading...",
