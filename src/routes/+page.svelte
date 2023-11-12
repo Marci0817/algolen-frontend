@@ -9,10 +9,11 @@
     <h1
         class="font-extrabold text-6xl bg-clip-text bg-gradient-to-r text-transparent from-prim to-sec"
     >
-        <p class="sm:hidden block">ALO</p>
-        <p class="hidden sm:block">Algolen</p>
+        <p class="">Algolen</p>
     </h1>
-    <p class="text-prim font-semibold text-center w-1/2 text-xl mt-16">
+    <p
+        class="text-prim font-semibold text-justify mx-10 md:mx-0 md:w-1/2 text-xl mt-16"
+    >
         Lorem Ipsum is simply dummy text of the printing and typesetting
         industry. Lorem Ipsum has been the industry's standard dummy text ever
         since the 1500s, when an unknown printer took a galley of type and
@@ -28,8 +29,8 @@
         class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec mt-12"
         >Launch app</button
     >
-    <h1 class="font-bold text-white text-2xl mt-16">How NFT renting works</h1>
-    <div class="mt-16">
-        <FlowChart />
-    </div>
+    <h1 class="font-bold text-white text-4xl mt-32 text-center">
+        How NFT renting works
+    </h1>
+    <FlowChart />
 </div>
