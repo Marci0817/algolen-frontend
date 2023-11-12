@@ -1,104 +1,74 @@
 <script lang="ts">
-    import { Svelvet, Node, Anchor, Edge } from "svelvet";
-    import type { Connections } from "svelvet";
-    import ConnectButton from "./ConnectButton.svelte";
+    import { fade } from "svelte/transition";
+    import { inview } from "svelte-inview";
+    import type {
+        ObserverEventDetails,
+        ScrollDirection,
+        Options,
+    } from "svelte-inview";
 
-    const initialNodes = [
+    const items = [
         {
             id: 1,
-            position: { x: 333, y: 50 },
-            label: "Lender lists nft",
-            width: 200,
-            height: 50,
-            bgColor: "white",
-            connections: [1, "test"],
+            label: "lender lists nft",
+            isSeller: true,
+            isInView: false,
         },
         {
             id: 2,
-            position: { x: 666, y: 150 },
             label: "user selects length for borrowing",
-            width: 200,
-            height: 50,
-            bgColor: "white",
+            isSeller: false,
+            isInView: false,
         },
         {
             id: 3,
-            position: { x: 500, y: 250 },
-            label: "user pays deposit daily rent",
-            width: 200,
-            height: 50,
-            bgColor: "white",
+            label: "user pays deposit and daily rent fee",
+            isSeller: false,
+            isInView: false,
+        },
+        {
+            id: 4,
+            label: "If borrower returns the nft in time, gets back the deposit",
+            isSeller: true,
+            isInView: false,
+        },
+        {
+            id: 5,
+            label: "If borrower runs out of time, lender takes the deposit",
+            isSeller: true,
+            isInView: false,
         },
     ];
+
+    const options: Options = {
+        rootMargin: "-0px",
+        unobserveOnEnter: true,
+    };
+
+    const handleChange = (
+        { detail }: CustomEvent<ObserverEventDetails>,
+        index: number
+    ) => {
+        items[index].isInView = detail.inView;
+    };
 </script>
 
-<Svelvet width={1000} height={500} theme="dark">
-    <Node
-        useDefaults
-        id={1}
-        position={{ x: 333, y: 50 }}
-        height={50}
-        width={200}
-        outputs={1}
-        bgColor="gray"
+{#each items as item, index (index)}
+    <div
+        use:inview={options}
+        on:inview_change={(detail) => handleChange(detail, index)}
+        class={`text-white flex flex-col items-center justify-center border-1 transition-opacity delay-300 duration-1000 rounded-lg bg-black border-2 font-bold mx-auto w-1/2 md:w-1/3 lg:w-1/4 text-center p-4 mt-32 ${
+            item.isSeller
+                ? "border-sec drop-shadow-neon"
+                : "border-prim drop-shadow-neonPrim"
+        } ${item.isInView ? "opacity-1" : "opacity-0"}`}
     >
-        <Anchor key={"lender"} connections={[1, 2]} dynamic />
-        <p class="text-center mx-2">lender lists nft</p>
-    </Node>
-    <Node
-        useDefaults
-        id={2}
-        position={{ x: 666, y: 150 }}
-        height={50}
-        width={200}
-        bgColor="gray"
-    >
-        <Anchor connections={[2, 3]} dynamic />
-        <p class="text-center mx-2">user selects length for borrowing</p>
-    </Node>
-    <Node
-        useDefaults
-        id={3}
-        position={{ x: 500, y: 250 }}
-        height={50}
-        width={200}
-        outputs={2}
-        bgColor="gray"
-    >
-        <Anchor connections={[[3, 4]]} dynamic />
-        <p class="text-center mx-2">user pays deposit daily rent</p>
-    </Node>
+        <h1 class="text-2xl text-gray-500 mx-4">{item.id}</h1>
+        <div class="flex items-center justify-center gap-2">
+            <p class="text-2xl">{item.label}</p>
+        </div>
+    </div>
+{/each}
 
-    <Node
-        useDefaults
-        id={4}
-        position={{ x: 250, y: 450 }}
-        height={50}
-        width={200}
-        bgColor="gray"
-    >
-        <Anchor connections={[3, 4]} dynamic>
-            <Edge
-                color="red"
-                label="Borrower returns the nft in time"
-                slot="edge"
-                animate
-            />
-        </Anchor>
-
-        <p class="text-center mx-2">Gets back the deposit fee</p>
-    </Node>
-    <Node
-        useDefaults
-        id={5}
-        position={{ x: 800, y: 450 }}
-        height={50}
-        width={200}
-        bgColor="gray"
-    >
-        <Anchor connections={[5, 3]} dynamic>
-            <Edge color="red" label="Borrower runs out of time" slot="edge" />
-        </Anchor>
-        <p class="text-center mx-2">lender takes the deposit fee</p>
-    </Node>
-</Svelvet>
+<style>
+</style>
