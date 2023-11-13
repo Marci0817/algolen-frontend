@@ -10,12 +10,12 @@
     const algod = new algosdk.Algodv2(
         env.PUBLIC_ALGOSDK_TOKEN || "",
         env.PUBLIC_ALGOSDK_SERVER,
-        env.PUBLIC_ALGOSDK_PORT
+        parseInt(env.PUBLIC_ALGOSDK_PORT)
     );
     const indexerClient = new algosdk.Indexer(
         env.PUBLIC_ALGOSDK_TOKEN || "",
-        env.PUBLIC_ALGOSDK_SERVER,
-        env.PUBLIC_ALGOSDK_PORT
+        env.PUBLIC_ALGOINDEXER_SERVER,
+        parseInt(env.PUBLIC_ALGOSDK_PORT)
     );
 
     // Declare regular variables for listings and rents
@@ -35,7 +35,7 @@
                 async (item: LookupAccountAssets) => {
                 const assetInfo: Record<string, any> = await indexerClient
                     //@ts-ignore
-                    .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
+                    .lookupAssetByID(item["asset-id"])
                     .do();
                     if (assetInfo.asset.params.total == 1 && assetInfo.asset.params.decimals == 0) { 
                         assetsName.push({'assetName': assetInfo.asset.params.name, 'assetUrl': assetInfo.asset.params.url})
@@ -43,7 +43,7 @@
                 }
             );
 
-            let listings = (await getAlgolenListingBoxes(algod)).filter((val) => {
+            let listings = (await getAlgolenListingBoxes(algod, indexerClient)).filter((val) => {
                 return val.owner == walletAddress.getValue();
             });
             let rents = (await getAlgolenRentBoxes(algod)).filter((val) => {
