@@ -1,14 +1,17 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
+  import type { NFT } from "$lib/utils/types";
+  import { openLendModal } from "../Modals/modal";
   import Button from "../shared/Button.svelte";
 
-  export let data = {
+  export let data: NFT = {
+    address: "",
     name: "Loading...",
     url: "",
   };
 
   const handleClick = () => {
-    console.log("Button clicked");
+    openLendModal(data);
     // You can perform further actions here
   };
 </script>
