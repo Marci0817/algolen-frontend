@@ -38,11 +38,11 @@
             <div class="my-3">
                 <div>
                     <p class="font-semibold text-gray-400">fee</p>
-                    <p class=" ml-3">{data.price_per_day}</p>
+                    <p class=" ml-3">{data.price_per_day} ALGO</p>
                 </div>
                 <div>
                     <p class="font-semibold text-gray-400">depo</p>
-                    <p class=" ml-3">{data.deposit}</p>
+                    <p class=" ml-3">{data.deposit} ALGO</p>
                 </div>
             </div>
             <Button
