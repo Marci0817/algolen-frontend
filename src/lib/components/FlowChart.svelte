@@ -1,6 +1,7 @@
 <script lang="ts">
     import { fade } from "svelte/transition";
     import { inview } from "svelte-inview";
+    import cn from "$lib/utils/className";
     import type {
         ObserverEventDetails,
         ScrollDirection,
@@ -57,11 +58,26 @@
     <div
         use:inview={options}
         on:inview_change={(detail) => handleChange(detail, index)}
-        class={`text-white flex flex-col items-center justify-center border-1 transition-opacity delay-300 duration-1000 rounded-lg bg-black border-2 font-bold mx-auto w-1/2 md:w-1/3 lg:w-1/4 text-center p-4 mt-32 ${
+        class={`text-white flex flex-col items-center justify-center border-1 transition  delay-300 duration-1000 rounded-lg bg-black border-2 font-bold mx-auto w-1/2 md:w-1/3 lg:w-1/4 text-center p-4 mt-32 ${
             item.isSeller
                 ? "border-sec drop-shadow-neon"
                 : "border-prim drop-shadow-neonPrim"
-        } ${item.isInView ? "opacity-1" : "opacity-0"}`}
+        } ${
+            item.isInView
+                ? cn(
+                      "opacity-100",
+                      index % 2 == 0
+                          ? "translate-x-0 md:translate-x-1/3"
+                          : "translate-x-0 md:-translate-x-1/3"
+                  )
+                : cn(
+                      "opacity-0",
+                      index % 2 == 0 ? "translate-x-full" : "-translate-x-full"
+                  )
+        }
+
+        
+        `}
     >
         <h1 class="text-2xl text-gray-500 mx-4">{item.id}</h1>
         <div class="flex items-center justify-center gap-2">
