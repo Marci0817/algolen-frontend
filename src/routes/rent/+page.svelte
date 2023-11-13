@@ -13,7 +13,7 @@
 
   const indexerClient = new algosdk.Indexer(
     env.PUBLIC_ALGOSDK_TOKEN || "",
-    env.PUBLIC_ALGOSDK_SERVER,
+    env.PUBLIC_ALGOINDEXER_SERVER,
     env.PUBLIC_ALGOSDK_PORT
   );
 
