@@ -2,7 +2,7 @@
   import type { AlgolenListing } from "$lib/utils/types";
   import Button from "./shared/Button.svelte";
 
-  let data: AlgolenListing = {
+  export let data: AlgolenListing = {
     asset_id: 0,
     name: "Loading...",
     url: "",
