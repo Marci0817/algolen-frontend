@@ -56,7 +56,7 @@ export async function getAlgolenRentBoxes(
     .getApplicationBoxes(parseInt(env.PUBLIC_APP_ID))
     .do();
   const boxNames: Uint8Array[] = boxes.boxes.map((box) => box.name);
-  for (const boxName in boxNames) {
+  for (const boxName of boxNames) {
     let encodedValue = await algodClient
       .getApplicationBoxByName(
         parseInt(env.PUBLIC_APP_ID),
