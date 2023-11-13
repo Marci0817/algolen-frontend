@@ -65,7 +65,6 @@ export async function getAlgolenRentBoxes(
       )
       .do();
     try {
-      let decodedBoxName = EncodedUInt64ToString(boxName);
       let decodedValue = ALGOLENRENTCODEC.decode(encodedValue.value);
       let decodedBoxName = EncodedUInt64ToString(boxName);
       const asset = await fetchAsset(decodedBoxName, indexerClient);

@@ -1,5 +1,4 @@
 <script lang="ts">
-
   import {
     getAlgolenRentBoxes,
     getAlgolenListingBoxes,
@@ -13,8 +12,6 @@
   import DashboardCard from "$lib/components/cards/RentCard.svelte";
   import ListingCard from "$lib/components/cards/ListingCard.svelte";
   import AssetCard from "$lib/components/cards/AssetCard.svelte";
-  import { algolenRents } from "./mock";
-  import { list } from "postcss";
 
   const algod = new algosdk.Algodv2(
     env.PUBLIC_ALGOSDK_TOKEN || "",
