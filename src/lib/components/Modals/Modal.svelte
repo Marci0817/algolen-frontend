@@ -18,7 +18,12 @@
                     use:clickOutside={() =>
                         i === $modals.length - 1 && modals.close()}
                 >
-                    <svelte:component this={modal.component} {...modal.props} />
+                    <div class="bg-blue-700 rounded-lg p-2">
+                        <svelte:component
+                            this={modal.component}
+                            {...modal.props}
+                        />
+                    </div>
                 </div>
             </div>
         {/each}
