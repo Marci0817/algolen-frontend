@@ -3,21 +3,8 @@
   import Button from "../shared/Button.svelte";
 
   export let data = {
-    asset_id: "Loading...",
     name: "Loading...",
     url: "",
-    price_per_day: 0,
-  };
-
-  const getTime = (time: Number) => {
-    let date = new Date(time as number);
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "numeric",
-      minute: "numeric",
-    }).format(date);
   };
 
   const handleClick = () => {

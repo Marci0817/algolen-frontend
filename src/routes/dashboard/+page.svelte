@@ -12,6 +12,8 @@
   import DashboardCard from "$lib/components/cards/RentCard.svelte";
   import ListingCard from "$lib/components/cards/ListingCard.svelte";
   import AssetCard from "$lib/components/cards/AssetCard.svelte";
+  import { algolenRents } from "./mock";
+  import { list } from "postcss";
 
   const algod = new algosdk.Algodv2(
     env.PUBLIC_ALGOSDK_TOKEN || "",
@@ -24,10 +26,16 @@
     parseInt(env.PUBLIC_ALGOSDK_PORT)
   );
 
+  interface Asset {
+    name: string;
+    url: string;
+  }
+
   // Declare regular variables for listings and rents
   let listingsForAddress = [];
   let rentsForAddress = [];
-  let assetsName: object[] = [];
+  let lentForAddress = [];
+  let assetsName: Asset[] = [];
 
   onMount(async () => {
     if (walletAddress.getValue()) {
@@ -40,13 +48,14 @@
             //@ts-ignore
             .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
             .do();
+
           if (
             assetInfo.asset.params.total == 1 &&
             assetInfo.asset.params.decimals == 0
           ) {
             assetsName.push({
-              assetName: assetInfo.asset.params.name,
-              assetUrl: assetInfo.asset.params.url,
+              name: assetInfo.asset.params.name,
+              url: assetInfo.asset.params.url,
             });
           }
         }
@@ -61,9 +70,15 @@
           return val.asset_renter == walletAddress.getValue();
         }
       );
+      let lents = (await getAlgolenRentBoxes(algod, indexerClient)).filter(
+        (val) => {
+          return val.asset_owner == walletAddress.getValue();
+        }
+      );
       // Set the values in the variables
       listingsForAddress = listings;
       rentsForAddress = rents;
+      lentForAddress = lents;
     }
   });
 </script>
@@ -85,6 +100,8 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
+      {#each lentForAddress as listing}
+        <ListingCard data={listing} />{/each}
       {#each listingsForAddress as listing}
         <ListingCard data={listing} />{/each}
     </div>
@@ -94,7 +111,7 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each listingsForAddress as listing}
+      {#each assetsName as listing}
         <AssetCard data={listing} />{/each}
     </div>
   </div>

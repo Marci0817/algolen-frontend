@@ -46,6 +46,6 @@
     </div>
   </div>
   <div class="mt-auto">
-    <Button onClick={handleClick} text="Cancel" />
+    <Button onClick={handleClick} text="Reclaim" />
   </div>
 </div>

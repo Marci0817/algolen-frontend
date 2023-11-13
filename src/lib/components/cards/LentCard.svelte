@@ -10,7 +10,6 @@
     asset_id: "Loading...",
     name: "Loading...",
     url: "",
-    price_per_day: 0,
     end_date: 0,
   };
 
@@ -23,6 +22,14 @@
       hour: "numeric",
       minute: "numeric",
     }).format(date);
+  };
+
+  const checkExpired = (time: Number) => {
+    if (Number(time) < Date.now()) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   const handleClick = () => {
@@ -46,23 +53,22 @@
 
   <div class="flex-grow leading-5 text-sm ml-4">
     <div class="font-bold text-md">{data.name}</div>
-    {#if data.price_per_day}
-      <div class="text-sm text-gray-400">
-        {data.price_per_day} ALGO per day
-      </div>
-    {/if}
     {#if data.end_date}
-      <div>
-        {getTime(data.end_date)}
-      </div>
-      {#if Number(data.end_date) < Date.now()}
+      {#if checkExpired(data.end_date)}
         <div class="text-sm text-red-500">{Status.EXPIRED}</div>
       {:else}
         <div class="text-sm text-green-500">{Status.RENTED}</div>
+        <div>
+          {getTime(data.end_date)}
+        </div>
       {/if}
     {/if}
   </div>
   <div class="mt-auto">
-    <Button onClick={handleClick} text="Return" />
+    <Button
+      disabled={!checkExpired(data.end_date)}
+      onClick={handleClick}
+      text="Reclaim"
+    />
   </div>
 </div>
