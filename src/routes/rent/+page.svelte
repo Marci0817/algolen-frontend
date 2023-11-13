@@ -39,8 +39,8 @@
 </script>
 
 <Navbar />
-<div class="mx-12 mt-6">
-    <div>
+<div class="mx-6 md:mx-12 mt-6">
+    <div class="md:block flex items-center justify-center">
         <SearchBar onSearch={filter} className={`mb-8`} />
     </div>
     <div class="flex flex-wrap gap-6 justify-center">
