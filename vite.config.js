@@ -5,7 +5,10 @@ import commonjs from "@rollup/plugin-commonjs";
 
 export default defineConfig({
     global: {},
-    plugins: [sveltekit(), commonjs()],
+    plugins: [sveltekit()],
+    ssr: {
+        noExternal: ["@algorandfoundation/algokit-utils"]
+    },
     optimizeDeps: {
         //For the wallets
         esbuildOptions: {

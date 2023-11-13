@@ -2,6 +2,7 @@
     import ConnectButton from "$lib/components/ConnectButton.svelte";
     import { fade } from "svelte/transition";
     import NavbarItems from "$lib/components/NavbarItems.svelte";
+    import { goto } from "$app/navigation";
 
     let isSideBarOpen = false;
 </script>
@@ -11,12 +12,18 @@
 >
     <div class="flex justify-center items-center">
         <div class="mr-8">
-            <h1
-                class="font-extrabold text-4xl bg-clip-text bg-gradient-to-r text-transparent from-prim to-sec"
+            <button
+                on:click={() => {
+                    goto("/app");
+                }}
             >
-                <p class="md:hidden block">Algolen</p>
-                <p class="hidden md:block">Algolen</p>
-            </h1>
+                <h1
+                    class="font-extrabold text-4xl bg-clip-text bg-gradient-to-r text-transparent from-prim to-sec"
+                >
+                    <p class="md:hidden block">Algolen</p>
+                    <p class="hidden md:block">Algolen</p>
+                </h1>
+            </button>
         </div>
         <div class="hidden md:block">
             <NavbarItems />
