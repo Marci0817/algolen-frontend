@@ -1,5 +1,5 @@
 export interface AlgolenListing {
-  asset_id: string;
+  asset_id: number;
   name: string;
   url: string;
   deposit: Number;
@@ -9,7 +9,7 @@ export interface AlgolenListing {
 }
 
 export interface AlgolenRent {
-  asset_id: string;
+  asset_id: number;
   name: string;
   url: string;
   end_date: Number;
@@ -23,3 +23,4 @@ export type NFT = {
   name: string;
   url: string;
 };
+

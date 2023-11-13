@@ -33,7 +33,7 @@ export async function getAlgolenListingBoxes(
       const asset = await fetchAsset(decodedBoxName, indexerClient);
       console.log(asset);
       resultset.push({
-        asset_id: decodedBoxName,
+        asset_id: parseInt(decodedBoxName),
         name: asset.params.name,
         url: asset.params.url,
         deposit: Number(decodedValue[0]),
@@ -65,12 +65,13 @@ export async function getAlgolenRentBoxes(
       )
       .do();
     try {
+      let decodedBoxName = EncodedUInt64ToString(boxName);
       let decodedValue = ALGOLENRENTCODEC.decode(encodedValue.value);
       let decodedBoxName = EncodedUInt64ToString(boxName);
       const asset = await fetchAsset(decodedBoxName, indexerClient);
 
       resultset.push({
-        asset_id: decodedBoxName,
+        asset_id: parseInt(decodedBoxName),
         name: asset.params.name,
         url: asset.params.url,
         end_date: Number(decodedValue[0]),
