@@ -89,8 +89,12 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each rentsForAddress as listing}
-        <DashboardCard data={listing} />{/each}
+      {#if rentsForAddress.length === 0}
+        <div class="text-center text-xl">You have no<br />rented NFTs</div>
+      {:else}
+        {#each rentsForAddress as listing}
+          <DashboardCard data={listing} />{/each}
+      {/if}
     </div>
   </div>
   <div class="text-center">
@@ -98,10 +102,14 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each lentForAddress as listing}
-        <ListingCard data={listing} />{/each}
-      {#each listingsForAddress as listing}
-        <ListingCard data={listing} />{/each}
+      {#if rentsForAddress.length === 0}
+        <div class="text-center text-xl">You don't have<br /> any listings</div>
+      {:else}
+        {#each lentForAddress as listing}
+          <ListingCard data={listing} />{/each}
+        {#each listingsForAddress as listing}
+          <ListingCard data={listing} />{/each}
+      {/if}
     </div>
   </div>
   <div class="text-center">
@@ -109,8 +117,12 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each assetsName as listing}
-        <AssetCard data={listing} />{/each}
+      {#if rentsForAddress.length === 0}
+        <div class="text-center text-xl">You don't have<br /> any NFTs</div>
+      {:else}
+        {#each assetsName as listing}
+          <AssetCard data={listing} />{/each}
+      {/if}
     </div>
   </div>
 </div>
