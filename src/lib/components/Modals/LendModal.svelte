@@ -97,7 +97,7 @@
   </div>
   <div class="">max length</div>
   <div class="w-max">
-    <input class="w-max" type="range" min="0" max="180" />
+    <input class="w-max" type="range" min="1" max="180" />
   </div>
   <div class="">disclaimer</div>
   <div class="flex flex-row">
