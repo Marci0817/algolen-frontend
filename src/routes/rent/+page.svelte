@@ -48,9 +48,9 @@
             <div class="text-white">No listings found</div>
         {/if}
         {#if listings.length > 0}
-            {#each { length: 10 } as _, i}
+            {#each listings as listing}
                 <div>
-                    <RentCard data={listings[0]} />
+                    <RentCard data={listing} />
                 </div>
             {/each}
         {/if}
