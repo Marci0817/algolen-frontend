@@ -1,9 +1,10 @@
 <script lang="ts">
+    import type { AlgolenListing } from "$lib/utils/types";
+    import { openRentModal } from "./Modals/modal";
     import Button from "./shared/Button.svelte";
-    import type { AlgolenListing } from "$lib/utils/boxUtil";
 
     export let data: AlgolenListing = {
-        asset_id: "Loading...",
+        asset_id: 0,
         name: "Loading...",
         url: "",
         deposit: 0,
@@ -16,7 +17,7 @@
         "https://ipfs.algonft.tools/ipfs/bafybeiatk5vsz42tuurqyclvlse3i7cn6jzg4cgkoqogf7kcmauzi6skze/782.png#i";
 
     const handleRentButtonClick = () => {
-        console.log("Rent button clicked");
+        openRentModal(data);
     };
 </script>
 
@@ -26,7 +27,7 @@
     <figure class="">
         <img
             src={PLACEHOLDER_IMAGE}
-            alt={data.asset_id}
+            alt={data.asset_id == 0 ? "Loading..." : data.asset_id.toString()}
             class="h-48 w-full rounded-t-lg"
         />
     </figure>

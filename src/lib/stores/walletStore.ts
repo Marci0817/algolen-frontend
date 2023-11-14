@@ -4,6 +4,9 @@ import { get, writable } from "svelte/store";
 import { modals } from "$lib/components/Modals/modal";
 import ErrorModal from "$lib/components/Modals/ErrorModal.svelte";
 import { browser } from "$app/environment";
+import algosdk from "algosdk";
+import { transactionSignerAccount } from "@algorandfoundation/algokit-utils";
+
 
 function connectWallet() {
     if (browser) {
@@ -62,6 +65,22 @@ function connectWallet() {
             set(newAddress);
         }
 
+        async function signTxns(unsignedTxns: Array<algosdk.Transaction>) {
+            const signerTransactions = unsignedTxns.map((txn) => {
+                return {
+                    txn,
+                    signers: [algosdk.encodeAddress(txn.from.publicKey)],
+                };
+            });
+            if (peraWallet.isConnected)
+                return await peraWallet.signTransaction([signerTransactions]);
+            else if (deflyWallet.isConnected)
+                return await deflyWallet.signTransaction([signerTransactions]);
+        }
+    
+        async function signer(txns: algosdk.Transaction[]) {
+            return signTxns(txns);
+        }
         //Reconnect automatically
         peraWallet
             .reconnectSession()
@@ -99,13 +118,17 @@ function connectWallet() {
         function value(value: string | null): string {
             return value === null ? undefined : value;
         }
+        function getValue() {
+            return value(get(store));
+        }
 
         return {
             subscribe,
             handleConnectWalletClick,
             handleDisconnectWalletClick,
             getFormattedValue: () => formattedValue(get(store)),
-            getValue: () => value(get(store)),
+            getValue,
+            signer,
         };
     }
 }

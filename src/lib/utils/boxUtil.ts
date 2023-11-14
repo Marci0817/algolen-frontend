@@ -33,7 +33,7 @@ export async function getAlgolenListingBoxes(
       const asset = await fetchAsset(decodedBoxName, indexerClient);
       console.log(asset);
       resultset.push({
-        asset_id: decodedBoxName,
+        asset_id: parseInt(decodedBoxName),
         name: asset.params.name,
         url: asset.params.url,
         deposit: Number(decodedValue[0]),
@@ -49,14 +49,15 @@ export async function getAlgolenListingBoxes(
 }
 
 export async function getAlgolenRentBoxes(
-  algodClient: algosdk.Algodv2
+  algodClient: algosdk.Algodv2,
+  indexerClient: algosdk.Indexer
 ): Promise<AlgolenRent[]> {
   let resultset: AlgolenRent[] = [];
   let boxes = await algodClient
     .getApplicationBoxes(parseInt(env.PUBLIC_APP_ID))
     .do();
   const boxNames: Uint8Array[] = boxes.boxes.map((box) => box.name);
-  for (const boxName in boxNames) {
+  for (const boxName of boxNames) {
     let encodedValue = await algodClient
       .getApplicationBoxByName(
         parseInt(env.PUBLIC_APP_ID),
@@ -65,9 +66,15 @@ export async function getAlgolenRentBoxes(
       .do();
     try {
       let decodedValue = ALGOLENRENTCODEC.decode(encodedValue.value);
+      let decodedBoxName = EncodedUInt64ToString(boxName);
+      const asset = await fetchAsset(decodedBoxName, indexerClient);
+
       resultset.push({
-        end_date: decodedValue[0],
-        deposit: decodedValue[1],
+        asset_id: parseInt(decodedBoxName),
+        name: asset.params.name,
+        url: asset.params.url,
+        end_date: Number(decodedValue[0]),
+        deposit: Number(decodedValue[1]),
         asset_owner: decodedValue[2],
         asset_renter: decodedValue[3],
       });
