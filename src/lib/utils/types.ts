@@ -19,8 +19,8 @@ export interface AlgolenRent {
 }
 
 export type NFT = {
+  asset_id: number;
   address: string;
   name: string;
   url: string;
 };
-

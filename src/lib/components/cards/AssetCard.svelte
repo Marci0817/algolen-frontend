@@ -5,6 +5,7 @@
   import Button from "../shared/Button.svelte";
 
   export let data: NFT = {
+    asset_id: 0,
     address: "",
     name: "Loading...",
     url: "",

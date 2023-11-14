@@ -98,8 +98,14 @@
   <div class="">max length</div>
   <div class="w-max">
     <input class="w-max" type="range" min="1" max="180" />
+    <div class="">
+      By checking this box, you agree to our <a
+        class="text-red-500 font-bold"
+        href="/termsconditions"
+        on:click={() => modals.close(modalID)}>terms and conditions</a
+      >
+    </div>
   </div>
-  <div class="">disclaimer</div>
   <div class="flex flex-row">
     <div class="">
       <input type="checkbox" class="default:ring-2" />

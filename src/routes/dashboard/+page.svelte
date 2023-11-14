@@ -12,6 +12,8 @@
   import DashboardCard from "$lib/components/cards/RentCard.svelte";
   import ListingCard from "$lib/components/cards/ListingCard.svelte";
   import AssetCard from "$lib/components/cards/AssetCard.svelte";
+  import type { NFT } from "$lib/utils/types";
+  import Button from "$lib/components/shared/Button.svelte";
 
   const algod = new algosdk.Algodv2(
     env.PUBLIC_ALGOSDK_TOKEN || "",
@@ -24,16 +26,11 @@
     parseInt(env.PUBLIC_ALGOSDK_PORT)
   );
 
-  interface Asset {
-    name: string;
-    url: string;
-  }
-
   // Declare regular variables for listings and rents
   let listingsForAddress = [];
   let rentsForAddress = [];
   let lentForAddress = [];
-  let assetsName: Asset[] = [];
+  let assets: NFT[] = [];
 
   onMount(async () => {
     if (walletAddress.getValue()) {
@@ -51,7 +48,9 @@
             assetInfo.asset.params.total == 1 &&
             assetInfo.asset.params.decimals == 0
           ) {
-            assetsName.push({
+            assets.push({
+              asset_id: assetInfo.asset.params.assetid,
+              address: assetInfo.asset.params.creator,
               name: assetInfo.asset.params.name,
               url: assetInfo.asset.params.url,
             });
@@ -89,8 +88,12 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each rentsForAddress as listing}
-        <DashboardCard data={listing} />{/each}
+      {#if rentsForAddress.length === 0}
+        <div class="text-center text-xl">You have no<br />rented NFTs</div>
+      {:else}
+        {#each rentsForAddress as listing}
+          <DashboardCard data={listing} />{/each}
+      {/if}
     </div>
   </div>
   <div class="text-center">
@@ -98,10 +101,14 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each lentForAddress as listing}
-        <ListingCard data={listing} />{/each}
-      {#each listingsForAddress as listing}
-        <ListingCard data={listing} />{/each}
+      {#if listingsForAddress.length === 0 && lentForAddress.length === 0}
+        <div class="text-center text-xl">You don't have<br /> any listings</div>
+      {:else}
+        {#each lentForAddress as listing}
+          <ListingCard data={listing} />{/each}
+        {#each listingsForAddress as listing}
+          <ListingCard data={listing} />{/each}
+      {/if}
     </div>
   </div>
   <div class="text-center">
@@ -109,8 +116,12 @@
     <div
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
-      {#each assetsName as listing}
-        <AssetCard data={listing} />{/each}
+      {#if assets.length === 0}
+        <div class="text-center text-xl">You don't have<br /> any NFTs</div>
+      {:else}
+        {#each assets as asset}
+          <AssetCard data={asset} />{/each}
+      {/if}
     </div>
   </div>
 </div>
