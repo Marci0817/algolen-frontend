@@ -36,7 +36,7 @@ export class AlgolenClient {
             {
                 from: this.signer,
                 to: this.app_address,
-                amount: microAlgos(1000000),
+                amount: microAlgos(1_000_000),
                 skipSending: true,
             },
             this.algod,
@@ -84,12 +84,12 @@ export class AlgolenClient {
         })
     }
 
-    async rentNFT(assetId: number, durationInDays: number, paymentAmountInMicroAlgos: number) {
+    async rentNFT(assetId: number, durationInDays: number, pricePerDay: number) {
         const txn = await transferAlgos(
             {
                 from: this.signer,
                 to: this.app_address,
-                amount: microAlgos(paymentAmountInMicroAlgos),
+                amount: microAlgos(pricePerDay * durationInDays + 4000),
                 skipSending: true,
             },
             this.algod,
