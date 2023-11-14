@@ -13,9 +13,6 @@
         owner: "",
     };
 
-    const PLACEHOLDER_IMAGE =
-        "https://ipfs.algonft.tools/ipfs/bafybeiatk5vsz42tuurqyclvlse3i7cn6jzg4cgkoqogf7kcmauzi6skze/782.png#i";
-
     const handleRentButtonClick = () => {
         openRentModal(data);
     };
@@ -26,7 +23,7 @@
 >
     <figure class="">
         <img
-            src={PLACEHOLDER_IMAGE}
+            src={data.url}
             alt={data.asset_id == 0 ? "Loading..." : data.asset_id.toString()}
             class="h-48 w-full rounded-t-lg"
         />
