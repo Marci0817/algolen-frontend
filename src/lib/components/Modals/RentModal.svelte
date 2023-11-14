@@ -7,7 +7,6 @@
     export let listing: AlgolenListing;
 
     let day = 0;
-    const MAX_DAY = 180;
 </script>
 
 <div
@@ -21,16 +20,24 @@
     </button>
     <div class="flex flex-col">
         <div class="flex md:flex-row flex-col items-center md:items-start">
-            <img
-                src={"https://ipfs.io/ipfs/bafybeid2ej622yaudvk65vlio6sk56mitrd4qmcbzkh3yl6kf7mw6rzl4u#i"}
-                alt={""}
-                class="w-48 rounded-lg"
-            />
-            <div class="mx-0 md:mx-6 w-full md:w-auto mt-4 md:mt-0">
-                <div class="text-xl">name</div>
-                <div class="">this_is_the_address</div>
-                <div class="">price/day</div>
-                <div class="">deposit</div>
+            <img src={listing.url} alt={listing.name} class="w-48 rounded-lg" />
+            <div class="mx-0 md:mx-6 w-full md:w-auto mt-4 md:mt-0 max-w-md">
+                <p class="text-2xl font-bold">{listing.name}</p>
+                <div class=" max-w-xs">
+                    <p class="text-sm text-gray-400 break-words">
+                        {listing.owner}
+                    </p>
+                </div>
+                <div class="mt-2 gap-2 flex justify-between">
+                    <div>
+                        <p class="text-gray-300 font-semibold">Price per day</p>
+                        <p>{listing.price_per_day} ALGO</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-300 font-semibold">Deposit</p>
+                        <p>{listing.deposit} ALGO</p>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="mt-8">
@@ -42,7 +49,9 @@
                         <span class="text-gray-300">day</span>
                     </p>
                     <p>
-                        <span class="font-semibold">{MAX_DAY}</span>
+                        <span class="font-semibold"
+                            >{listing.max_duration_in_days}</span
+                        >
                         <span class="text-gray-300">day</span>
                     </p>
                 </div>
@@ -50,7 +59,7 @@
                     class="w-full"
                     type="range"
                     min={0}
-                    max={MAX_DAY}
+                    max={listing.max_duration_in_days}
                     bind:value={day}
                 />
             </div>
@@ -70,7 +79,7 @@
                 <div class="">
                     <button
                         on:click={() => ""}
-                        class=" rounded-lg font-bold px-8 py-2 border-2 border-sec drop-shadow-neon"
+                        class=" rounded-lg font-bold px-8 py-2"
                         ><p class="text-lg text-sec">Rent</p></button
                     >
                 </div>
