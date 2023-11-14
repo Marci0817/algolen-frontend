@@ -6,7 +6,7 @@
     export let modalID;
     export let listing: AlgolenListing;
 
-    let day = 0;
+    let day = 1;
 </script>
 
 <div
