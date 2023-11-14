@@ -57,7 +57,7 @@
 </div>
 
 <aside
-    class="absolute w-full h-full left-0 top-0 bg-gray-200 border-r-2 shadow-lg z-50"
+    class="md:hidden absolute w-full h-full left-0 top-0 bg-gray-200 border-r-2 shadow-lg z-50"
     class:isSideBarOpen
 >
     <nav class="p-12 text-xl">
