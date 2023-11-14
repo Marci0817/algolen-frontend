@@ -7,35 +7,45 @@
         ScrollDirection,
         Options,
     } from "svelte-inview";
+    import Img1 from "$lib/assets/img1.png";
+    import Img2 from "$lib/assets/img2.png";
+    import Img3 from "$lib/assets/img3.png";
+    import Img4 from "$lib/assets/img4.png";
+    import Img5 from "$lib/assets/img5.png";
 
     const items = [
         {
             id: 1,
-            label: "lender lists nft",
+            label: "Lender lists nft",
+            img: Img1,
             isSeller: true,
             isInView: false,
         },
         {
             id: 2,
-            label: "user selects length for borrowing",
+            label: "User selects length of borrowing",
+            img: Img2,
             isSeller: false,
             isInView: false,
         },
         {
             id: 3,
-            label: "user pays deposit and daily rent fee",
+            label: "User pays deposit and daily rent fee",
+            img: Img3,
             isSeller: false,
             isInView: false,
         },
         {
             id: 4,
             label: "If borrower returns the nft in time, gets back the deposit",
+            img: Img4,
             isSeller: true,
             isInView: false,
         },
         {
             id: 5,
             label: "If borrower runs out of time, lender takes the deposit",
+            img: Img5,
             isSeller: true,
             isInView: false,
         },
@@ -81,6 +91,7 @@
     >
         <h1 class="text-2xl text-gray-500 mx-4">{item.id}</h1>
         <div class="flex items-center justify-center gap-2">
+            <img src={item.img} alt="" class="w-64 p-4">
             <p class="text-2xl">{item.label}</p>
         </div>
     </div>
