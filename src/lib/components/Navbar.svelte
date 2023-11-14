@@ -14,7 +14,7 @@
         <div class="mr-8">
             <button
                 on:click={() => {
-                    goto("/app");
+                    goto("/");
                 }}
             >
                 <h1
