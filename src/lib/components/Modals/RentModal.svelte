@@ -101,9 +101,11 @@
         />
       </div>
       <div class="max-w-md text-sm text-gray-300 my-5">
-        disclaimer disclaimer disclaimer disclaimer disclaimer disclaimer
-        disclaimer disclaimer disclaimer disclaimer disclaimer disclaimer
-        disclaimer disclaimer disclaimer disclaimer disclaimer disclaimer
+        By checking this box, you agree to our <a
+          class="text-red-500 font-bold"
+          href="/termsconditions"
+          on:click={() => modals.close(modalID)}>terms and conditions</a
+        >
       </div>
       <div class="flex justify-between">
         <div class="flex justify-center items-center gap-2">
