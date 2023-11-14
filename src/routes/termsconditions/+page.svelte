@@ -1,4 +1,6 @@
 <script>
+  import Navbar from "$lib/components/Navbar.svelte";
+
   let disclaimerText = `
     You are solely responsible for your own NFTs and the risks associated with lending or borrowing them on this platform.
     You acknowledge that this platform is not a financial institution, a broker, a dealer, or an investment advisor, and does not provide any financial, legal, tax, or investment advice.
@@ -10,6 +12,7 @@
   `;
 </script>
 
+<Navbar />
 <div class="mx-40 text-lg flex justify-center items-center min-h-screen">
   <p>Please read and acknowledge the following disclaimer:</p>
   <ul class="text-white text-center">
