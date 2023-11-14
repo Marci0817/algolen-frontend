@@ -1,55 +1,57 @@
 <script lang="ts">
-  import type { AlgolenListing } from "$lib/utils/types";
-  import { openRentModal } from "./Modals/modal";
-  import Button from "./shared/Button.svelte";
+    import type { AlgolenListing } from "$lib/utils/types";
+    import { openRentModal } from "./Modals/modal";
+    import Button from "./shared/Button.svelte";
 
-  export let data: AlgolenListing = {
-    asset_id: 0,
-    name: "Loading...",
-    url: "",
-    deposit: 0,
-    price_per_day: 0,
-    max_duration_in_days: 0,
-    owner: "",
-  };
+    export let data: AlgolenListing = {
+        asset_id: 0,
+        name: "Loading...",
+        url: "",
+        deposit: 0,
+        price_per_day: 0,
+        max_duration_in_days: 0,
+        owner: "",
+    };
 
-  const PLACEHOLDER_IMAGE =
-    "https://ipfs.algonft.tools/ipfs/bafybeiatk5vsz42tuurqyclvlse3i7cn6jzg4cgkoqogf7kcmauzi6skze/782.png#i";
+    const PLACEHOLDER_IMAGE =
+        "https://ipfs.algonft.tools/ipfs/bafybeiatk5vsz42tuurqyclvlse3i7cn6jzg4cgkoqogf7kcmauzi6skze/782.png#i";
 
-  const handleRentButtonClick = () => {
-    openRentModal(data);
-  };
+    const handleRentButtonClick = () => {
+        openRentModal(data);
+    };
 </script>
 
 <div
-  class="w-56 bg-gray-900 text-white border-2 drop-shadow-neonPrim focus:drop-shadow-neon outline-none focus:border-sec border-prim font-primary rounded-2xl"
+    class="w-56 bg-gray-900 text-white border-2 drop-shadow-2xl outline-none border-gray-800 font-primary rounded-lg"
 >
-  <figure class="">
-    <img
-      src={PLACEHOLDER_IMAGE}
-      alt={data.asset_id == 0 ? "Loading..." : data.asset_id.toString()}
-      class="h-48 w-full rounded-t-xl"
-    />
-  </figure>
+    <figure class="">
+        <img
+            src={PLACEHOLDER_IMAGE}
+            alt={data.asset_id == 0 ? "Loading..." : data.asset_id.toString()}
+            class="h-48 w-full rounded-t-lg"
+        />
+    </figure>
 
-  <div class="px-6 py-4">
-    <div class="font-bold text-xl mb-2">{data.name}</div>
+    <div class="px-6 py-4">
+        <div class="font-bold text-xl mb-2">{data.name}</div>
 
-    <div class="flex flex-row justify-between mb-2">
-      <div class="flex-col">
-        <span>fee: {data.price_per_day}</span>
-        <span>depo: {data.deposit}</span>
-      </div>
-
-      <div class="flex justify-end">
-        <Button className="h-6" onClick={handleRentButtonClick} text="Rent" />
-      </div>
+        <div class="flex flex-col justify-between mb-1">
+            <div class="mt-1 mb-5 flex items-center">
+                <div class="text-center">
+                    <p class="font-semibold text-gray-400">fee</p>
+                    <p class="ml-3">
+                        {data.price_per_day}
+                        <span class="font-semibold">ALGO</span>
+                    </p>
+                </div>
+                <div class="text-center">
+                    <p class="font-semibold text-gray-400">depo</p>
+                    <p class="ml-3">
+                        {data.deposit} <span class="font-semibold">ALGO</span>
+                    </p>
+                </div>
+            </div>
+            <Button onClick={handleRentButtonClick} text="Rent" />
+        </div>
     </div>
-  </div>
 </div>
-
-<style>
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-</style>
