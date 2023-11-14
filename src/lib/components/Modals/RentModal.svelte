@@ -58,7 +58,7 @@
                 <input
                     class="w-full"
                     type="range"
-                    min={0}
+                    min={1}
                     max={listing.max_duration_in_days}
                     bind:value={day}
                 />
