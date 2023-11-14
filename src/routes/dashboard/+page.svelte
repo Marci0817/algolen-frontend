@@ -13,7 +13,7 @@
   import ListingCard from "$lib/components/cards/ListingCard.svelte";
   import AssetCard from "$lib/components/cards/AssetCard.svelte";
   import type { NFT } from "$lib/utils/types";
-  import Button from "$lib/components/shared/Button.svelte";
+    import { list } from "postcss";
 
   const algod = new algosdk.Algodv2(
     env.PUBLIC_ALGOSDK_TOKEN || "",
@@ -43,13 +43,13 @@
             //@ts-ignore
             .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
             .do();
-
           if (
             assetInfo.asset.params.total == 1 &&
             assetInfo.asset.params.decimals == 0
           ) {
+            
             assets.push({
-              asset_id: assetInfo.asset.params.assetid,
+              asset_id: item["asset-id"],
               address: assetInfo.asset.params.creator,
               name: assetInfo.asset.params.name,
               url: assetInfo.asset.params.url,
@@ -76,6 +76,8 @@
       listingsForAddress = listings;
       rentsForAddress = rents;
       lentForAddress = lents;
+      let listingIds = listings.map((val) => val.asset_id);
+      assets = assets.filter((v) => { return listingIds.includes(v.asset_id) })
     }
   });
 </script>
