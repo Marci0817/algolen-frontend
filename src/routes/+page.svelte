@@ -1,6 +1,12 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import Defly from "$lib/assets/defly.jpg";
+    import Pera from "$lib/assets/pera.png";
+    import Algorand from "$lib/assets/algorand.jpg";
+
     import FlowChart from "$lib/components/FlowChart.svelte";
+
+    let images = [Pera, Defly, Algorand];
 </script>
 
 <div
@@ -25,6 +31,11 @@
             class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
             >Launch app</button
         >
+    </div>
+    <div class="flex flex-row mt-20 gap-3">
+        {#each images as image}
+            <img src={image} class="w-24 h-24" />
+        {/each}
     </div>
     <h1 class="font-bold text-white text-4xl mt-32 text-center md:mx-auto mx-0">
         How NFT renting works
