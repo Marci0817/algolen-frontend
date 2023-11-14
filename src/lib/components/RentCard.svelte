@@ -35,22 +35,23 @@
     <div class="px-6 py-4">
         <div class="font-bold text-xl mb-2">{data.name}</div>
 
-        <div class="flex flex-col justify-between mb-2">
-            <div class="my-3">
-                <div>
+        <div class="flex flex-col justify-between mb-1">
+            <div class="mt-1 mb-5 flex items-center">
+                <div class="text-center">
                     <p class="font-semibold text-gray-400">fee</p>
-                    <p class=" ml-3">{data.price_per_day} ALGO</p>
+                    <p class="ml-3">
+                        {data.price_per_day}
+                        <span class="font-semibold">ALGO</span>
+                    </p>
                 </div>
-                <div>
+                <div class="text-center">
                     <p class="font-semibold text-gray-400">depo</p>
-                    <p class=" ml-3">{data.deposit} ALGO</p>
+                    <p class="ml-3">
+                        {data.deposit} <span class="font-semibold">ALGO</span>
+                    </p>
                 </div>
             </div>
-            <Button
-                className="h-6"
-                onClick={handleRentButtonClick}
-                text="Rent"
-            />
+            <Button onClick={handleRentButtonClick} text="Rent" />
         </div>
     </div>
 </div>
