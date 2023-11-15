@@ -3,7 +3,6 @@
     import type { NFT } from '$lib/utils/types'
     import { openLendModal } from '../Modals/modal'
     import Button from '../shared/Button.svelte'
-    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
     export let data: NFT = {
         asset_id: 0,
@@ -25,7 +24,7 @@
         <figure class="">
             <img
                 src={data.url}
-                alt={PlaceholderNFT}
+                alt={"Not found"}
                 class="h-auto w-16 object-cover rounded-xl"
             />
         </figure>
