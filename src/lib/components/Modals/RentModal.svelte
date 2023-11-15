@@ -11,6 +11,7 @@
     import { microAlgos } from '@algorandfoundation/algokit-utils'
     import Button from '../shared/Button.svelte'
 
+
     export let modalID
     export let listing: AlgolenListing
     let isAccepted = false
@@ -72,8 +73,7 @@
                 <p class="text-2xl font-bold">{listing.name}</p>
                 <div class=" max-w-xs">
                     <p class="text-sm text-gray-400 break-words">
-                        {listing.owner}
-                    </p>
+                        <a target="_blank" href={`https://testnet.algoexplorer.io/address/${listing.owner}`}>{listing.owner}</a>                    </p>
                 </div>
                 <div class="mt-2 gap-2 flex justify-between">
                     <div>
@@ -95,7 +95,7 @@
                         <span class="text-gray-300">day</span>
                     </p>
                     <p>
-                        <span class="text-gray-300">current days: {day}</span>
+                        <span class="text-gray-300">Rent period: {day}</span>
                     </p>
                     <p>
                         <span class="font-semibold"
@@ -111,6 +111,7 @@
                     max={listing.max_duration_in_days.toString()}
                     bind:value={day}
                 />
+                <div class="mt-2">Total rent cost: {listing.price_per_day*day/1000000+listing.deposit/1000000} ALGO + 0.004 ALGO fee</div>
             </div>
             <div class="max-w-md text-sm text-gray-300 my-5">
                 By checking this box, you agree to our <a

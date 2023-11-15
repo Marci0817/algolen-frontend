@@ -130,7 +130,7 @@
             class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
         >
             {#if rentsForAddress.length === 0}
-                <div class="text-center text-xl">
+                <div class="text-center w-72 p-4 text-xl">
                     You have no<br />rented NFTs
                 </div>
             {:else}
@@ -145,7 +145,7 @@
             class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
         >
             {#if listingsForAddress.length === 0 && lentForAddress.length === 0}
-                <div class="text-center text-xl">
+                <div class="text-center w-72 p-4 text-xl">
                     You don't have<br /> any listings
                 </div>
             {:else}
@@ -162,7 +162,7 @@
             class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
         >
             {#if assets.length === 0}
-                <div class="text-center text-xl">
+                <div class="text-center w-72 p-4 text-xl">
                     You don't have<br /> any NFTs to list
                 </div>
             {:else}
