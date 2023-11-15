@@ -41,7 +41,7 @@
             reserve: walletAddress.getValue(),
             freeze: walletAddress.getValue(),
             clawback: walletAddress.getValue(),
-            assetURL: 'https://algolen-frontend.vercel.app/testnft.png',
+            assetURL: 'https://algolen.vercel.app/testnft.png',
         })
         const stxn = await walletAddress.signer([txn])
         let txid = await algod.sendRawTransaction(stxn[0]).do()
