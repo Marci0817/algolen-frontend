@@ -2,9 +2,9 @@ export interface AlgolenListing {
   asset_id: number;
   name: string;
   url: string;
-  deposit: Number;
-  price_per_day: Number;
-  max_duration_in_days: Number;
+  deposit: number;
+  price_per_day: number;
+  max_duration_in_days: number;
   owner: string;
 }
 
