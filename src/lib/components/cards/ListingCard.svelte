@@ -1,55 +1,65 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
-    import algosdk from 'algosdk'
-    import Button from '../shared/Button.svelte'
-    import { microAlgos, transactionSignerAccount } from '@algorandfoundation/algokit-utils'
-    import { env } from '$env/dynamic/public'
-    import { walletAddress } from '$lib/stores/walletStore'
-    import { AlgolenClient } from '$lib/utils/AlgolenClient'
+    import algosdk from "algosdk";
+    import Button from "../shared/Button.svelte";
+    import {
+        microAlgos,
+        transactionSignerAccount,
+    } from "@algorandfoundation/algokit-utils";
+    import { env } from "$env/dynamic/public";
+    import { walletAddress } from "$lib/stores/walletStore";
+    import { AlgolenClient } from "$lib/utils/AlgolenClient";
+    import { alerts } from "$lib/stores/alertStore";
 
     export let data = {
-        asset_id: 'Loading...',
-        name: 'Loading...',
-        url: '',
+        asset_id: "Loading...",
+        name: "Loading...",
+        url: "",
         price_per_day: 0,
-    }
+    };
 
     const algod = new algosdk.Algodv2(
-        env.PUBLIC_ALGOSDK_TOKEN || '',
+        env.PUBLIC_ALGOSDK_TOKEN || "",
         env.PUBLIC_ALGOSDK_SERVER,
         parseInt(env.PUBLIC_ALGOSDK_PORT)
-    )
+    );
     const indexerClient = new algosdk.Indexer(
-        env.PUBLIC_ALGOSDK_TOKEN || '',
+        env.PUBLIC_ALGOSDK_TOKEN || "",
         env.PUBLIC_ALGOINDEXER_SERVER,
         parseInt(env.PUBLIC_ALGOSDK_PORT)
-    )
+    );
     let signer = transactionSignerAccount(
-            walletAddress.signer,
-            walletAddress.getValue()
-        )
+        walletAddress.signer,
+        walletAddress.getValue()
+    );
     let client = new AlgolenClient(
         parseInt(env.PUBLIC_APP_ID),
         env.PUBLIC_APP_ADDRESS,
         signer,
         algod,
         indexerClient
-    )
+    );
 
     const getTime = (time: number) => {
-        let date = new Date(time * 1000)
-        return new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: 'numeric',
-            minute: 'numeric',
-        }).format(date)
-    }
+        let date = new Date(time * 1000);
+        return new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "numeric",
+            minute: "numeric",
+        }).format(date);
+    };
 
     const handleClick = async () => {
         await client.delistNFT(parseInt(data.asset_id));
-    }
+        alerts.add({
+            type: "success",
+            title: "You successfully delisted your NFT",
+            desc: "",
+        });
+        window.location.reload();
+    };
 </script>
 
 <div
@@ -75,9 +85,11 @@
     </div>
     <div class="mt-auto">
         {#if data.price_per_day !== undefined}
-        <Button onClick={handleClick} text="Reclaim" />
+            <Button onClick={handleClick} text="Reclaim" />
         {:else}
-        <span class="drop-shadow-neonPrim border-prim">The NFT has been rented</span>
+            <span class="drop-shadow-neonPrim border-prim"
+                >The NFT has been rented</span
+            >
         {/if}
     </div>
 </div>
