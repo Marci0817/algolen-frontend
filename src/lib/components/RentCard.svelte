@@ -2,6 +2,7 @@
     import type { AlgolenListing } from "$lib/utils/types";
     import { openRentModal } from "./Modals/modal";
     import Button from "./shared/Button.svelte";
+    import { microAlgos } from "@algorandfoundation/algokit-utils";
 
     export let data: AlgolenListing = {
         asset_id: 0,
@@ -37,14 +38,22 @@
                 <div class="text-center">
                     <p class="font-semibold text-gray-400">fee</p>
                     <p class="ml-3">
-                        {data.price_per_day}
+                        {#if data.price_per_day}
+                        {microAlgos(data.price_per_day).algos}
+                        {:else}
+                        0
+                        {/if}
                         <span class="font-semibold">ALGO</span>
                     </p>
                 </div>
                 <div class="text-center">
                     <p class="font-semibold text-gray-400">depo</p>
                     <p class="ml-3">
-                        {data.deposit} <span class="font-semibold">ALGO</span>
+                        {#if data.deposit}
+                            {microAlgos(data.deposit).algos} <span class="font-semibold">ALGO</span>
+                        {:else}
+                        0 <span class="font-semibold">ALGO</span>
+                        {/if}
                     </p>
                 </div>
             </div>
