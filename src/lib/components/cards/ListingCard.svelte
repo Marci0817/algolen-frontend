@@ -1,6 +1,7 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
   import Button from "../shared/Button.svelte";
+  import { microAlgos } from "@algorandfoundation/algokit-utils";
 
   export let data = {
     asset_id: "Loading...",
@@ -42,7 +43,9 @@
   <div class="flex-grow leading-5 text-sm ml-4">
     <div class="font-bold text-md">{data.name}</div>
     <div class="text-sm text-gray-400">
-      {data.price_per_day} ALGO per day
+      {#if data.price_per_day}
+      {microAlgos(data.price_per_day).algos} ALGO per day
+      {/if}
     </div>
   </div>
   <div class="mt-auto">
