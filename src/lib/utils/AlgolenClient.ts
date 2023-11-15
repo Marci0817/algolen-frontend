@@ -149,7 +149,7 @@ export class AlgolenClient {
             accounts: [owner],
         })
     }
-    async returnNFT(assetId: number) {
+    async returnNFT(assetId: number, owner: string) {
         let txn = await transferAsset(
             {
                 from: this.signer,
@@ -168,6 +168,7 @@ export class AlgolenClient {
                 { appId: this.app_id, name: algosdk.encodeUint64(assetId) },
             ],
             assets: [assetId],
+            accounts: [owner]
         })
     }
 
