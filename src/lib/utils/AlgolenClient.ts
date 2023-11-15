@@ -30,6 +30,15 @@ export class AlgolenClient {
         let assetIds = out.assets.map(asset => parseInt(asset["asset-id"]));
         return assetIds.includes(assetId);
     }
+    async optIntoAsset(assetId: number) {
+        return await transferAsset({
+                "from": this.signer,
+                "to": this.signer.addr,
+                "assetId": assetId,
+                "amount": 0,
+                "skipSending": false,
+        }, this.algod)
+    }
 
     async opt_in_to_asset(assetId: number) {
         const txn = await transferAlgos(

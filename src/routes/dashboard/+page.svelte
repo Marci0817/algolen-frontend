@@ -4,7 +4,7 @@
     getAlgolenListingBoxes,
   } from "$lib/utils/boxUtil";
   import { walletAddress } from "$lib/stores/walletStore";
-  import algosdk from "algosdk";
+  import algosdk, { Transaction } from "algosdk";
   import { onMount } from "svelte";
   import type LookupAccountAssets from "algosdk/dist/types/client/v2/indexer/lookupAccountAssets";
   import { env } from "$env/dynamic/public";
@@ -13,7 +13,7 @@
   import ListingCard from "$lib/components/cards/ListingCard.svelte";
   import AssetCard from "$lib/components/cards/AssetCard.svelte";
   import type { NFT } from "$lib/utils/types";
-  import Button from "$lib/components/shared/Button.svelte";
+
 
   const algod = new algosdk.Algodv2(
     env.PUBLIC_ALGOSDK_TOKEN || "",
@@ -25,6 +25,32 @@
     env.PUBLIC_ALGOINDEXER_SERVER,
     parseInt(env.PUBLIC_ALGOSDK_PORT)
   );
+
+  async function mintSampleNFT(walletAddress) {
+    const params = await algod.getTransactionParams().do()
+    const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+      from: walletAddress.getValue(),
+      suggestedParams: params,
+      total: 1,
+      decimals: 0,
+      defaultFrozen: false,
+      unitName: 'TSTNFT',
+      assetName: "TestNFTAlgolen",
+      manager: walletAddress.getValue(),
+      reserve: walletAddress.getValue(),
+      freeze: walletAddress.getValue(),
+      clawback: walletAddress.getValue(),
+      assetURL: 'https://th.bing.com/th/id/OIP.Dx4pFHVjVc5WysKYDp-3mQHaEP?pid=ImgDet&rs=1',
+  })
+    const stxn = await walletAddress.signer([txn]);
+    let txid = await algod.sendRawTransaction(stxn[0]).do()
+    txid = txid['txId']
+
+    const ptx = await algod.pendingTransactionInformation(txid).do()
+
+    const assetId = ptx["asset-index"]
+    alert("Asset created!!");
+}
 
   // Declare regular variables for listings and rents
   let listingsForAddress = [];
@@ -43,13 +69,12 @@
             //@ts-ignore
             .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
             .do();
-
           if (
             assetInfo.asset.params.total == 1 &&
             assetInfo.asset.params.decimals == 0
           ) {
             assets.push({
-              asset_id: assetInfo.asset.params.assetid,
+              asset_id: item["asset-id"],
               address: assetInfo.asset.params.creator,
               name: assetInfo.asset.params.name,
               url: assetInfo.asset.params.url,
@@ -76,6 +101,8 @@
       listingsForAddress = listings;
       rentsForAddress = rents;
       lentForAddress = lents;
+      let listingIds = listings.map((val) => val.asset_id);
+      assets = assets.filter((v) => { return !listingIds.includes(v.asset_id) })
     }
   });
 </script>
@@ -122,6 +149,11 @@
         {#each assets as asset}
           <AssetCard data={asset} />{/each}
       {/if}
+      <button
+            on:click={() => mintSampleNFT(walletAddress)}
+            class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
+            >Mint Sample NFT</button
+        >
     </div>
   </div>
 </div>

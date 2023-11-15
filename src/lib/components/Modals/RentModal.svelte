@@ -8,6 +8,7 @@
   import { check_opted_into_asset } from "$lib/utils/checkOptIn";
   import { AlgolenClient } from "$lib/utils/AlgolenClient";
   import { transactionSignerAccount } from "@algorandfoundation/algokit-utils";
+    import { list } from "postcss";
 
   export let modalID;
   export let listing: AlgolenListing;
@@ -20,7 +21,7 @@
   );
   const indexer = new algosdk.Indexer(
     env.PUBLIC_ALGOSDK_TOKEN || "",
-    env.PUBLIC_ALGOSDK_SERVER,
+    env.PUBLIC_ALGOINDEXER_SERVER,
     env.PUBLIC_ALGOSDK_PORT
   );
 
@@ -41,10 +42,10 @@
       listing.asset_id,
       walletAddress.getValue()
     );
-    // if (!optedIn) {
-    //   await client.opt_in_to_asset(nft.asset_id);
-    // }
-    // await client.listNft(nft.asset_id, 0, 0, 180);
+    if (!optedIn) {
+       await client.optIntoAsset(listing.asset_id);
+    }
+   await client.rentNFT(listing.asset_id, 1, listing.price_per_day);
   };
 </script>
 
