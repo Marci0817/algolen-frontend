@@ -55,7 +55,7 @@
         })
         await client.rentNFT(
             listing.asset_id,
-            1,
+            day,
             listing.price_per_day,
             listing.owner
         )
