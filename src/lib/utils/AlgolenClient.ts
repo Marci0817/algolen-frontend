@@ -7,8 +7,6 @@ import {
     transferAsset,
     getBoxReference,
 } from '@algorandfoundation/algokit-utils'
-import type { BoxIdentifier } from '@algorandfoundation/algokit-utils/types/app'
-import { env } from '$env/dynamic/public'
 import algosdk from 'algosdk'
 import type { ApplicationClient } from '@algorandfoundation/algokit-utils/types/app-client'
 export class AlgolenClient {
