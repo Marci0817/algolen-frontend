@@ -1,38 +1,24 @@
-# create-svelte
+# Algolen
+![Tux, the Linux mascot](https://github.com/Marci0817/algolen-frontend/blob/9bea6e14354d27b1c17fa9f3b8228d4aa3e2f44e/static/favicon.png)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+NFT Lending and Renting
 
-## Creating a project
+## The Vision
+Imagine a world where you can lend out your unused NFTs to generate passive income and rent out NFTs for short terms use.
 
-If you're seeing this, you've probably already done this step. Congrats!
+You just joined a new NFT based game on Algorand, you are enjoying the game but don't have much time to play. Don't worry because at **Algolen** you can rent out a high level NFT and enjoy the endgame at your leisure. 
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+No need for long term commitments, renting is a fraction of the cost of buying the NFT at full price.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## The tech stack
+- Frontend: SvelteKit (and Algokit Utils)
+- Contract: Beaker (and Algokit Utils)
+- Unit testing: Pytest
 
-## Developing
+## The Team
+- **\[Vision and Contract\]** [visdauas](https://github.com/visdauas) - Participated in the 2nd Algorand Greenhouse hacks, and won 3rd place in the NFT Similarity service category as a Project Lead
+- **\[Contract and Integration\]** [D0rs4n](https://github.com/D0rs4n) - Participated in the 3nd Algorand Greenhouse hacks, and won 3rd place in the Bring your Own Project (Contractorium - Decentralized Bug Bounty Platform) as a Contract Archictect
+- **\[Designer\]** [Marci0817](https://github.com/Marci0817) Contractorium member as Frontend developer.
+- **\[Frontend and Integration]** [Sooki](https://github.com/0xSooki): Blockchain advocate, Full stack "Gets it done" developer, Hackathon addict
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
