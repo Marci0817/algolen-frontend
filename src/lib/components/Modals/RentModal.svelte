@@ -11,6 +11,7 @@
     import { microAlgos } from '@algorandfoundation/algokit-utils'
     import Button from '../shared/Button.svelte'
     import { alerts } from '$lib/stores/alertStore'
+    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
     export let modalID
     export let listing: AlgolenListing
@@ -81,7 +82,7 @@
         <div class="flex md:flex-row flex-col items-center md:items-start">
             <img
                 src={listing.url}
-                alt={listing.name}
+                alt={PlaceholderNFT}
                 class="h-48 w-48 rounded-lg"
             />
             <div class="mx-0 md:mx-6 w-full md:w-auto mt-4 md:mt-0 max-w-md">
