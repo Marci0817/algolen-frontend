@@ -18,7 +18,6 @@ export async function getAlgolenListingBoxes(
         .do()
     const boxNames: Uint8Array[] = boxes.boxes.map((box) => box.name)
     for (const boxName of boxNames) {
-        console.log(boxName)
         let encodedValue = await algodClient
             .getApplicationBoxByName(
                 parseInt(env.PUBLIC_APP_ID),
@@ -29,7 +28,6 @@ export async function getAlgolenListingBoxes(
             let decodedValue = ALGOLENLISTINGCODEC.decode(encodedValue.value)
             let decodedBoxName = EncodedUInt64ToString(boxName)
             const asset = await fetchAsset(decodedBoxName, indexerClient)
-            console.log(asset)
             resultset.push({
                 asset_id: parseInt(decodedBoxName),
                 name: asset.params.name,
