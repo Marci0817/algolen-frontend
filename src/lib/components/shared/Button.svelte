@@ -7,8 +7,8 @@
 
 <button
     on:click={onClick}
-    {disabled}
-    class={`bg-gray-900 text-white border-2 drop-shadow-neonPrim hover:drop-shadow-neon hover:border-sec border-prim font-primary rounded-lg ml-2 py-1 px-2 ${className}}`}
+    disabled={disabled}
+    class={`bg-gray-900 text-white border-2 drop-shadow-neonPrim hover:drop-shadow-neon hover:border-sec border-prim font-primary rounded-lg ml-2 py-1 px-2 ${className}`}
     type="button"
 >
     {text}

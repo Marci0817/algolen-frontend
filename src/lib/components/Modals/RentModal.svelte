@@ -9,9 +9,11 @@
     import { AlgolenClient } from '$lib/utils/AlgolenClient'
     import { transactionSignerAccount } from '@algorandfoundation/algokit-utils'
     import { microAlgos } from '@algorandfoundation/algokit-utils'
+    import Button from '../shared/Button.svelte'
 
     export let modalID
     export let listing: AlgolenListing
+    let isAccepted = false
 
     let day = 1
     const algod = new algosdk.Algodv2(
@@ -46,6 +48,7 @@
             await client.optIntoAsset(listing.asset_id)
         }
         await client.rentNFT(listing.asset_id, 1, listing.price_per_day, listing.owner)
+        modals.close(modalID)
     }
 </script>
 
@@ -86,11 +89,13 @@
         </div>
         <div class="mt-8">
             <div class="">
-                <p class="mb-2 text-lg">Max length</p>
                 <div class="flex justify-between">
                     <p>
-                        <span class="font-semibold">{day}</span>
+                        <span class="text-gray-300">1</span>
                         <span class="text-gray-300">day</span>
+                    </p>
+                    <p>
+                        <span class="text-gray-300">current days: {day}</span>
                     </p>
                     <p>
                         <span class="font-semibold"
@@ -117,17 +122,18 @@
             </div>
             <div class="flex justify-between">
                 <div class="flex justify-center items-center gap-2">
-                    <input type="checkbox" />
+                    <input type="checkbox" bind:value={isAccepted} />
                     <p class="text-red-500 text-sm mx-4 md:mx-0">
                         I accept the terms and conditions
                     </p>
                 </div>
                 <div class="">
-                    <button
-                        on:click={rentFlow}
-                        class=" rounded-lg font-bold px-8 py-2"
-                        ><p class="text-lg text-sec">Rent</p></button
-                    >
+                    <Button
+                    disabled={!isAccepted}
+                        onClick={rentFlow}
+                        text="Rent"
+                        className={!isAccepted ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'}
+                        />
                 </div>
             </div>
         </div>
