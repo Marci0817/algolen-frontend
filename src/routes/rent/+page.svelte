@@ -5,11 +5,9 @@
     import { onMount } from 'svelte'
     import algosdk from 'algosdk'
     import { env } from '$env/dynamic/public'
-    //types
-    import Button from '$lib/components/shared/Button.svelte'
     import Navbar from '$lib/components/Navbar.svelte'
 
-    import { fetchAsset, searchListings } from '$lib/utils/assetUtil'
+    import { searchListings } from '$lib/utils/assetUtil'
 
     const indexerClient = new algosdk.Indexer(
         env.PUBLIC_ALGOSDK_TOKEN || '',
@@ -24,9 +22,11 @@
     )
 
     let listings: any[] = []
+    let loading = true
 
     onMount(async () => {
         listings = await searchListings(algod, indexerClient)
+        loading = false
     })
 
     const filter = async (searchTerm: string) => {
@@ -40,10 +40,11 @@
         <SearchBar onSearch={filter} className={`mb-8`} />
     </div>
     <div class="flex flex-wrap gap-6 justify-center">
-        {#if listings.length === 0}
+        {#if loading}
+            <div class="text-white text-2xl">Loading...</div>
+        {:else if listings.length === 0}
             <div class="text-white">No listings found</div>
-        {/if}
-        {#if listings.length > 0}
+        {:else}
             {#each listings as listing}
                 <div>
                     <RentCard data={listing} />

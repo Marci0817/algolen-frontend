@@ -133,8 +133,10 @@
                     bind:value={day}
                 />
                 <div class="mt-2">
-                    Total rent cost: {(listing.price_per_day * day) / 1000000 +
-                        listing.deposit / 1000000} ALGO + 0.004 ALGO fee
+                    Total rent cost: {(
+                        (listing.price_per_day * day) / 1000000 +
+                        listing.deposit / 1000000
+                    ).toFixed(2)} ALGO + 0.004 ALGO fee
                 </div>
             </div>
             <div class="max-w-md text-sm text-gray-300 my-5">
