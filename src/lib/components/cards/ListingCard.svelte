@@ -45,6 +45,8 @@
     <div class="text-sm text-gray-400">
       {#if data.price_per_day}
       {microAlgos(data.price_per_day).algos} ALGO per day
+      {:else}
+      
       {/if}
     </div>
   </div>

@@ -40,6 +40,8 @@
                     <p class="ml-3">
                         {#if data.price_per_day}
                         {microAlgos(data.price_per_day).algos}
+                        {:else}
+                        0
                         {/if}
                         <span class="font-semibold">ALGO</span>
                     </p>
@@ -49,6 +51,8 @@
                     <p class="ml-3">
                         {#if data.deposit}
                             {microAlgos(data.deposit).algos} <span class="font-semibold">ALGO</span>
+                        {:else}
+                        0 <span class="font-semibold">ALGO</span>
                         {/if}
                     </p>
                 </div>

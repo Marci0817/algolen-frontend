@@ -8,7 +8,7 @@
   import { check_opted_into_asset } from "$lib/utils/checkOptIn";
   import { AlgolenClient } from "$lib/utils/AlgolenClient";
   import { transactionSignerAccount } from "@algorandfoundation/algokit-utils";
-    import { list } from "postcss";
+  import { microAlgos } from "@algorandfoundation/algokit-utils";
 
   export let modalID;
   export let listing: AlgolenListing;
@@ -71,11 +71,11 @@
         <div class="mt-2 gap-2 flex justify-between">
           <div>
             <p class="text-gray-300 font-semibold">Price per day</p>
-            <p>{listing.price_per_day} ALGO</p>
+            <p>{microAlgos(listing.price_per_day).algos} ALGO</p>
           </div>
           <div>
             <p class="text-gray-300 font-semibold">Deposit</p>
-            <p>{listing.deposit} ALGO</p>
+            <p>{microAlgos(listing.deposit).algos} ALGO</p>
           </div>
         </div>
       </div>
