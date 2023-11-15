@@ -14,6 +14,7 @@
     import AssetCard from '$lib/components/cards/AssetCard.svelte'
     import type { NFT } from '$lib/utils/types'
     import { alerts } from '$lib/stores/alertStore'
+    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
 
     const algod = new algosdk.Algodv2(
@@ -90,11 +91,19 @@
                         assetInfo.asset.params.decimals == 0 &&
                         assetBalanceForAddr != 0
                     ) {
+                        let url;
+                        try {
+                            new URL(assetInfo.assets.params.url)
+                            url = assetInfo.assets.params.url
+                        }
+                        catch(ex) {
+                           url = PlaceholderNFT
+                        }
                         assets.push({
                             asset_id: item['asset-id'],
                             address: assetInfo.asset.params.creator,
                             name: assetInfo.asset.params.name,
-                            url: assetInfo.asset.params.url,
+                            url: url
                         })
                     }
                 }
