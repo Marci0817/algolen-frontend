@@ -23,6 +23,8 @@
     export let nft: NFT
     let isAccepted = false
     let currDays = 1
+    let price_per_day = 1
+    let deposit = 1
 
     async function lendFlow() {
         let signer = transactionSignerAccount(
@@ -45,7 +47,12 @@
             title: 'Transaction sent for signing',
             desc: 'Please check your wallet',
         })
-        await client.listNft(nft.asset_id, 0, 0, 180)
+        await client.listNft(
+            nft.asset_id,
+            deposit * 1_000_000,
+            price_per_day * 1_000_000,
+            currDays
+        )
         modals.close(modalID)
         alerts.add({
             type: 'info',
@@ -89,8 +96,7 @@
                     </div>
                     <input
                         class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-pink-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
-                        placeholder="0"
-                        value="1"
+                        bind:value={price_per_day}
                         type="number"
                     />
                 </div>
@@ -106,7 +112,7 @@
                         </div>
                         <input
                             class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-pink-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
-                            value="1"
+                            bind:value={deposit}
                             type="number"
                         />
                     </div>
