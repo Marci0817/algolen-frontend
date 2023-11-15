@@ -115,7 +115,11 @@
             let rentsIds = rentsForAddress.map((val) => val.asset_id);
             let listingIds = listings.map((val) => val.asset_id)
             assets = assets.filter((v) => {
-                return (!listingIds.includes(v.asset_id) && !rentsIds.includes(v.asset_id))
+                return !listingIds.includes(v.asset_id)
+            });
+            
+            listingsForAddress = listingsForAddress.filter((v) => {
+                return !rentsIds.includes(v.asset_id)
             })
         }
     })
