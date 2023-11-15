@@ -49,6 +49,10 @@
         </div>
     </div>
     <div class="mt-auto">
+        {#if data.price_per_day}
         <Button onClick={handleClick} text="Reclaim" />
+        {:else}
+        <span class="drop-shadow-neonPrim border-prim">The NFT has been rented</span>
+        {/if}
     </div>
 </div>
