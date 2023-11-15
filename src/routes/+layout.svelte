@@ -4,8 +4,6 @@
     import Alert from "$lib/components/Alerts/Alert.svelte";
     import { fade } from "svelte/transition";
     import { loader } from "$lib/stores/loaderStore";
-
-    $: console.log($loader);
 </script>
 
 <svelte:head>

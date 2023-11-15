@@ -25,7 +25,7 @@
             >Launch app</button
         >
     </div>
-    <h1 class="font-bold text-white text-4xl mt-32 text-center md:mx-auto mx-0">
+    <h1 class="font-bold text-white text-4xl mt-32 text-center md:mx-auto mx-4">
         How NFT renting works
     </h1>
 </div>
