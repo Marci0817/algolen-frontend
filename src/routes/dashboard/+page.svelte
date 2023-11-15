@@ -14,6 +14,8 @@
     import AssetCard from '$lib/components/cards/AssetCard.svelte'
     import type { NFT } from '$lib/utils/types'
 
+    $: walletAddress
+
     const algod = new algosdk.Algodv2(
         env.PUBLIC_ALGOSDK_TOKEN || '',
         env.PUBLIC_ALGOSDK_SERVER,
@@ -173,11 +175,13 @@
                 {#each assets as asset}
                     <AssetCard data={asset} />{/each}
             {/if}
+            {#if walletAddress.getValue() != undefined}
             <button
                 on:click={() => mintSampleNFT(walletAddress)}
                 class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
                 >Mint Sample NFT</button
             >
+            {/if}
         </div>
     </div>
 </div>
