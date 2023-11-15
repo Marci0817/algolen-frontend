@@ -124,6 +124,7 @@ export class AlgolenClient {
 
     async rentNFT(
         assetId: number,
+        deposit: number,
         durationInDays: number,
         pricePerDay: number,
         owner: string
@@ -132,7 +133,7 @@ export class AlgolenClient {
             {
                 from: this.signer,
                 to: this.app_address,
-                amount: microAlgos(pricePerDay * durationInDays + 4000),
+                amount: microAlgos(pricePerDay * durationInDays + 4000 + deposit),
                 skipSending: true,
             },
             this.algod
