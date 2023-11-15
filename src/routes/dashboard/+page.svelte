@@ -28,7 +28,7 @@
     async function mintSampleNFT(walletAddress) {
         const params = await algod.getTransactionParams().do()
         const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
-            from: walletAddress.getValue(),
+            from: $walletAddress,
             suggestedParams: params,
             total: 1,
             decimals: 0,
@@ -37,11 +37,11 @@
             assetName:
                 'Algolen Test NFT #' +
                 Math.floor(Math.random() * 1_000_000 + 1),
-            manager: walletAddress.getValue(),
-            reserve: walletAddress.getValue(),
-            freeze: walletAddress.getValue(),
-            clawback: walletAddress.getValue(),
-            assetURL: 'https://algolen-frontend.vercel.app/testnft.png',
+            manager: $walletAddress,
+            reserve: $walletAddress,
+            freeze: $walletAddress,
+            clawback: $walletAddress,
+            assetURL: 'https://algolen.vercel.app/testnft.png',
         })
         const stxn = await walletAddress.signer([txn])
         let txid = await algod.sendRawTransaction(stxn[0]).do()
@@ -60,9 +60,9 @@
     let assets: NFT[] = []
 
     onMount(async () => {
-        if (walletAddress.getValue()) {
+        if ($walletAddress) {
             const accountAppLocalStates = await indexerClient
-                .lookupAccountAssets(walletAddress.getValue())
+                .lookupAccountAssets($walletAddress)
                 .do()
             accountAppLocalStates.assets.forEach(
                 async (item: LookupAccountAssets) => {
@@ -75,7 +75,7 @@
                         .do()
                     const assetBalanceForAddr = assetBalances.balances
                         .filter(
-                            (val) => val.address === walletAddress.getValue()
+                            (val) => val.address === $walletAddress
                         )
                         .reduce((total, val) => total + val.amount, 0)
 
@@ -96,17 +96,17 @@
             let listings = (
                 await getAlgolenListingBoxes(algod, indexerClient)
             ).filter((val) => {
-                return val.owner == walletAddress.getValue()
+                return val.owner == $walletAddress
             })
             let rents = (
                 await getAlgolenRentBoxes(algod, indexerClient)
             ).filter((val) => {
-                return val.asset_renter == walletAddress.getValue()
+                return val.asset_renter == $walletAddress
             })
             let lents = (
                 await getAlgolenRentBoxes(algod, indexerClient)
             ).filter((val) => {
-                return val.asset_owner == walletAddress.getValue()
+                return val.asset_owner == $walletAddress
             })
             // Set the values in the variables
             listingsForAddress = listings
@@ -115,7 +115,11 @@
             let rentsIds = rentsForAddress.map((val) => val.asset_id);
             let listingIds = listings.map((val) => val.asset_id)
             assets = assets.filter((v) => {
-                return (!listingIds.includes(v.asset_id) && !rentsIds.includes(v.asset_id))
+                return !listingIds.includes(v.asset_id)
+            });
+            
+            listingsForAddress = listingsForAddress.filter((v) => {
+                return !rentsIds.includes(v.asset_id)
             })
         }
     })
@@ -169,11 +173,13 @@
                 {#each assets as asset}
                     <AssetCard data={asset} />{/each}
             {/if}
+            {#if $walletAddress != undefined}
             <button
                 on:click={() => mintSampleNFT(walletAddress)}
                 class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
                 >Mint Sample NFT</button
             >
+            {/if}
         </div>
     </div>
 </div>

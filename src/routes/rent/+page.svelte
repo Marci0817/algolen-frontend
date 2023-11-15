@@ -29,10 +29,6 @@
         listings = await searchListings(algod, indexerClient)
     })
 
-    const test = () => {
-        console.log(listings)
-    }
-
     const filter = async (searchTerm: string) => {
         listings = await searchListings(algod, indexerClient, searchTerm)
     }
