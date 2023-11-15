@@ -8,6 +8,8 @@
     import algosdk from 'algosdk'
     import Button from '../shared/Button.svelte'
     import { alerts } from '$lib/stores/alertStore'
+    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
+
     const algod = new algosdk.Algodv2(
         env.PUBLIC_ALGOSDK_TOKEN || '',
         env.PUBLIC_ALGOSDK_SERVER,
@@ -73,7 +75,7 @@
     </button>
     <div class="flex flex-row gap-8">
         <div>
-            <img src={nft.url} alt={nft.name} class="h-48 w-48 rounded-lg" />
+            <img src={nft.url} alt={PlaceholderNFT} class="h-48 w-48 rounded-lg" />
         </div>
         <div class="">
             <div class="text-2xl font-bold">{nft.name}</div>

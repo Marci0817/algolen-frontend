@@ -6,6 +6,8 @@
     import { env } from '$env/dynamic/public'
     import { walletAddress } from '$lib/stores/walletStore'
     import { AlgolenClient } from '$lib/utils/AlgolenClient'
+    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
+
     enum Status {
         RENTED = 'Rented',
         EXPIRED = 'Expired',
@@ -69,7 +71,7 @@
         <figure class="">
             <img
                 src={data.url}
-                alt={data.name}
+                alt={PlaceholderNFT}
                 class="h-auto w-16 object-cover rounded-xl"
             />
         </figure>
