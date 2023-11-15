@@ -26,8 +26,10 @@
     let currDays = 1
     let price_per_day = 1
     let deposit = 1
+    let isListLoading = false;
 
     async function lendFlow() {
+        isListLoading = true;
         let signer = transactionSignerAccount(
             walletAddress.signer,
             walletAddress.getValue()
@@ -60,6 +62,7 @@
             title: 'Your transaction is being processed',
             desc: '',
         })
+        isListLoading = false;
         window.location.reload();
     }
 </script>
@@ -152,14 +155,18 @@
                     I accept the terms and conditions
                 </p>
             </div>
-            <Button
-                disabled={!isAccepted}
-                text="List"
-                onClick={lendFlow}
-                className={!isAccepted
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'opacity-100 cursor-pointer'}
-            />
+            {#if !isListLoading}
+                <Button
+                    disabled={!isAccepted}
+                    text="List"
+                    onClick={lendFlow}
+                    className={!isAccepted
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'opacity-100 cursor-pointer'}
+                />
+            {:else}
+                <p class="animate-pulse text-white">Listing..</p>
+            {/if}
         </div>
     </div>
 </div>
