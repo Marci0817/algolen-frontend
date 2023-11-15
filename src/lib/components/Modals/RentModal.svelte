@@ -15,6 +15,7 @@
     export let modalID
     export let listing: AlgolenListing
     let isAccepted = false
+    let isRentLoading = false;
 
     let day = 1
     const algod = new algosdk.Algodv2(
@@ -29,6 +30,7 @@
     )
 
     const rentFlow = async () => {
+        isRentLoading = true;
         let signer = transactionSignerAccount(
             walletAddress.signer,
             walletAddress.getValue()
@@ -61,10 +63,11 @@
         )
         modals.close(modalID)
         alerts.add({
-            type: 'info',
+            type: 'success',
             title: 'Transaction submitted successfully',
             desc: 'Waiting for confirmation',
         })
+        isRentLoading= false;
     }
 </script>
 
@@ -154,6 +157,7 @@
                     </p>
                 </div>
                 <div class="">
+                    {#if !isRentLoading}
                     <Button
                         disabled={!isAccepted}
                         onClick={rentFlow}
@@ -162,6 +166,9 @@
                             ? 'opacity-50 cursor-not-allowed'
                             : 'opacity-100 cursor-pointer'}
                     />
+                    {:else}
+                        <p class="animate-pulse text-white">Signing..</p>
+                    {/if}
                 </div>
             </div>
         </div>
