@@ -33,11 +33,11 @@
     <div class="px-6 py-4">
         <div class="font-bold text-xl mb-2">{data.name}</div>
 
-        <div class="flex flex-col justify-between mb-1">
-            <div class="mt-1 mb-5 flex items-center">
+        <div class="flex flex-col mb-1">
+            <div class="mt-1 mb-5 justify-between flex">
                 <div class="text-center">
-                    <p class="font-semibold text-gray-400">fee</p>
-                    <p class="ml-3">
+                    <p class="font-semibold text-gray-400">Price/Day</p>
+                    <p>
                         {#if data.price_per_day}
                             {microAlgos(data.price_per_day).algos}
                         {:else}
@@ -47,8 +47,8 @@
                     </p>
                 </div>
                 <div class="text-center">
-                    <p class="font-semibold text-gray-400">depo</p>
-                    <p class="ml-3">
+                    <p class="font-semibold text-gray-400">Deposit</p>
+                    <p>
                         {#if data.deposit}
                             {microAlgos(data.deposit).algos}
                             <span class="font-semibold">ALGO</span>
