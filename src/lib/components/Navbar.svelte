@@ -1,10 +1,10 @@
 <script lang="ts">
-    import ConnectButton from "$lib/components/ConnectButton.svelte";
-    import { fade } from "svelte/transition";
-    import NavbarItems from "$lib/components/NavbarItems.svelte";
-    import { goto } from "$app/navigation";
+    import ConnectButton from '$lib/components/ConnectButton.svelte'
+    import { fade } from 'svelte/transition'
+    import NavbarItems from '$lib/components/NavbarItems.svelte'
+    import { goto } from '$app/navigation'
 
-    let isSideBarOpen = false;
+    let isSideBarOpen = false
 </script>
 
 <div
@@ -14,7 +14,7 @@
         <div class="mr-8">
             <button
                 on:click={() => {
-                    goto("/");
+                    goto('/')
                 }}
             >
                 <h1
@@ -31,7 +31,7 @@
         <div class="absolute right-12 md:hidden">
             <button
                 on:click={() => {
-                    isSideBarOpen = !isSideBarOpen;
+                    isSideBarOpen = !isSideBarOpen
                 }}
             >
                 <svg
@@ -64,7 +64,7 @@
         <div class="absolute right-12 md:hidden">
             <button
                 on:click={() => {
-                    isSideBarOpen = !isSideBarOpen;
+                    isSideBarOpen = !isSideBarOpen
                 }}
             >
                 <svg

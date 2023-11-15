@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { walletAddress } from "$lib/stores/walletStore";
-    import { modals } from "./modal";
-    export let modalID: number;
+    import { walletAddress } from '$lib/stores/walletStore'
+    import { modals } from './modal'
+    export let modalID: number
 
     //images
-    import PeraWalletImage from "$lib/assets/pera.png";
-    import DeflyWalletImage from "$lib/assets/defly.jpg";
+    import PeraWalletImage from '$lib/assets/pera.png'
+    import DeflyWalletImage from '$lib/assets/defly.jpg'
 
     function handleConnectWalletClick(value: string) {
-        walletAddress.handleConnectWalletClick(value);
-        modals.close();
+        walletAddress.handleConnectWalletClick(value)
+        modals.close()
     }
 </script>
 
@@ -19,7 +19,7 @@
     <h1 class="text-center text-lg font-semibold">Connect your wallet</h1>
     <div class="flex gap-8 my-6">
         <button
-            on:click={() => handleConnectWalletClick("pera")}
+            on:click={() => handleConnectWalletClick('pera')}
             class="flex flex-col justify-center items-center hover:scale-105 hover:animate-pulse"
         >
             <img
@@ -30,7 +30,7 @@
             <p class="text-md mt-2">Pera Wallet</p>
         </button>
         <button
-            on:click={() => handleConnectWalletClick("defly")}
+            on:click={() => handleConnectWalletClick('defly')}
             class="flex flex-col justify-center items-center hover:scale-105 hover:animate-pulse"
         >
             <img

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-    import FlowChart from "$lib/components/FlowChart.svelte";
+    import { goto } from '$app/navigation'
+    import FlowChart from '$lib/components/FlowChart.svelte'
 </script>
 
 <div
@@ -21,7 +21,7 @@
     </p>
     <div class="flex items-center mt-12 gap-6">
         <button
-            on:click={() => goto("/rent")}
+            on:click={() => goto('/rent')}
             class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
             >Launch app</button
         >
