@@ -59,7 +59,6 @@
             title: 'Asset',
             desc: 'Test asset created',
         })
-        window.location.reload();
     }
 
     // Declare regular variables for listings and rents
