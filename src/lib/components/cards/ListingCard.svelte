@@ -1,7 +1,11 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
+    import algosdk from 'algosdk'
     import Button from '../shared/Button.svelte'
-    import { microAlgos } from '@algorandfoundation/algokit-utils'
+    import { microAlgos, transactionSignerAccount } from '@algorandfoundation/algokit-utils'
+    import { env } from '$env/dynamic/public'
+    import { walletAddress } from '$lib/stores/walletStore'
+    import { AlgolenClient } from '$lib/utils/AlgolenClient'
 
     export let data = {
         asset_id: 'Loading...',
@@ -10,8 +14,30 @@
         price_per_day: 0,
     }
 
-    const getTime = (time: Number) => {
-        let date = new Date(time as number)
+    const algod = new algosdk.Algodv2(
+        env.PUBLIC_ALGOSDK_TOKEN || '',
+        env.PUBLIC_ALGOSDK_SERVER,
+        parseInt(env.PUBLIC_ALGOSDK_PORT)
+    )
+    const indexerClient = new algosdk.Indexer(
+        env.PUBLIC_ALGOSDK_TOKEN || '',
+        env.PUBLIC_ALGOINDEXER_SERVER,
+        parseInt(env.PUBLIC_ALGOSDK_PORT)
+    )
+    let signer = transactionSignerAccount(
+            walletAddress.signer,
+            walletAddress.getValue()
+        )
+    let client = new AlgolenClient(
+        parseInt(env.PUBLIC_APP_ID),
+        env.PUBLIC_APP_ADDRESS,
+        signer,
+        algod,
+        indexerClient
+    )
+
+    const getTime = (time: number) => {
+        let date = new Date(time * 1000)
         return new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
             month: 'short',
@@ -21,9 +47,8 @@
         }).format(date)
     }
 
-    const handleClick = () => {
-        console.log('Button clicked')
-        // You can perform further actions here
+    const handleClick = async () => {
+        await client.delistNFT(parseInt(data.asset_id));
     }
 </script>
 
