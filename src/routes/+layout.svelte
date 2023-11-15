@@ -1,6 +1,7 @@
 <script>
-    import '../app.css'
-    import Modal from '$lib/components/Modals/Modal.svelte'
+    import "../app.css";
+    import Modal from "$lib/components/Modals/Modal.svelte";
+    import Alert from "$lib/components/Alerts/Alert.svelte";
 </script>
 
 <svelte:head>
@@ -17,3 +18,4 @@
 </svelte:head>
 <slot />
 <Modal />
+<Alert />
