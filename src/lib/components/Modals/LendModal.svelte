@@ -60,6 +60,7 @@
             title: 'Your transaction is being processed',
             desc: '',
         })
+        window.location.reload();
     }
 </script>
 

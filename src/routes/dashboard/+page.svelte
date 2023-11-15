@@ -15,6 +15,7 @@
     import type { NFT } from '$lib/utils/types'
     import { alerts } from '$lib/stores/alertStore'
     import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
+    import { loader } from "$lib/stores/loaderStore";
 
 
     const algod = new algosdk.Algodv2(
@@ -58,6 +59,7 @@
             title: 'Asset',
             desc: 'Test asset created',
         })
+        window.location.reload();
     }
 
     // Declare regular variables for listings and rents
@@ -68,6 +70,7 @@
 
     onMount(async () => {
         if ($walletAddress) {
+            loader.show(true);
             const accountAppLocalStates = await indexerClient
                 .lookupAccountAssets($walletAddress)
                 .do()
@@ -128,6 +131,7 @@
             listingsForAddress = listingsForAddress.filter((v) => {
                 return !rentsIds.includes(v.asset_id)
             })
+            loader.show(false);
         }
     })
 </script>
