@@ -91,19 +91,11 @@
                         assetInfo.asset.params.decimals == 0 &&
                         assetBalanceForAddr != 0
                     ) {
-                        let url;
-                        try {
-                            new URL(assetInfo.assets.params.url)
-                            url = assetInfo.assets.params.url
-                        }
-                        catch(ex) {
-                           url = PlaceholderNFT
-                        }
                         assets.push({
                             asset_id: item['asset-id'],
                             address: assetInfo.asset.params.creator,
                             name: assetInfo.asset.params.name,
-                            url: url
+                            url: assetInfo.assets.params.url
                         })
                     }
                 }
