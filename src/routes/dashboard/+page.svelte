@@ -13,6 +13,8 @@
     import ListingCard from '$lib/components/cards/ListingCard.svelte'
     import AssetCard from '$lib/components/cards/AssetCard.svelte'
     import type { NFT } from '$lib/utils/types'
+    import { alerts } from '$lib/stores/alertStore'
+
 
     const algod = new algosdk.Algodv2(
         env.PUBLIC_ALGOSDK_TOKEN || '',
@@ -50,7 +52,11 @@
         const ptx = await algod.pendingTransactionInformation(txid).do()
 
         const assetId = ptx['asset-index']
-        alert('Asset created!!')
+        alerts.add({
+            type: 'success',
+            title: 'Asset',
+            desc: 'Test asset created',
+        })
     }
 
     // Declare regular variables for listings and rents
@@ -165,6 +171,13 @@
         <div
             class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
         >
+            {#if $walletAddress != undefined}
+                <button
+                    on:click={() => mintSampleNFT(walletAddress)}
+                    class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
+                    >Mint Sample NFT</button
+                >
+            {/if}
             {#if assets.length === 0}
                 <div class="text-center w-72 p-4 text-xl">
                     You don't have<br /> any NFTs to list
@@ -172,13 +185,6 @@
             {:else}
                 {#each assets as asset}
                     <AssetCard data={asset} />{/each}
-            {/if}
-            {#if $walletAddress != undefined}
-            <button
-                on:click={() => mintSampleNFT(walletAddress)}
-                class="py-3 px-8 rounded-lg drop-shadow-neon text-white font-bold bg-sec"
-                >Mint Sample NFT</button
-            >
             {/if}
         </div>
     </div>
