@@ -69,9 +69,15 @@
             //@ts-ignore
             .lookupAssetByID(item["asset-id"]) // It should work with item.assetId but it cause error.
             .do();
+          const assetBalances = await indexerClient.lookupAssetBalances(item["asset-id"]).do();
+          const assetBalanceForAddr = assetBalances.balances
+          .filter(val => val.address === walletAddress.getValue())
+          .reduce((total, val) => total + val.amount, 0);
+
           if (
             assetInfo.asset.params.total == 1 &&
             assetInfo.asset.params.decimals == 0
+            && assetBalanceForAddr != 0
           ) {
             assets.push({
               asset_id: item["asset-id"],
@@ -144,7 +150,7 @@
       class="p-6 border-sec rounded-2xl text-left flex flex-col gap-6 border-2"
     >
       {#if assets.length === 0}
-        <div class="text-center text-xl">You don't have<br /> any NFTs</div>
+        <div class="text-center text-xl">You don't have<br /> any NFTs to list</div>
       {:else}
         {#each assets as asset}
           <AssetCard data={asset} />{/each}
