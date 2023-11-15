@@ -6,280 +6,364 @@
  */
 import * as algokit from '@algorandfoundation/algokit-utils'
 import type {
-  AppCallTransactionResult,
-  AppCallTransactionResultOfType,
-  CoreAppCallArgs,
-  RawAppCallArgs,
-  AppState,
-  TealTemplateParams,
-  ABIAppCallArg,
+    AppCallTransactionResult,
+    AppCallTransactionResultOfType,
+    CoreAppCallArgs,
+    RawAppCallArgs,
+    AppState,
+    TealTemplateParams,
+    ABIAppCallArg,
 } from '@algorandfoundation/algokit-utils/types/app'
 import type {
-  AppClientCallCoreParams,
-  AppClientCompilationParams,
-  AppClientDeployCoreParams,
-  AppDetails,
-  ApplicationClient,
+    AppClientCallCoreParams,
+    AppClientCompilationParams,
+    AppClientDeployCoreParams,
+    AppDetails,
+    ApplicationClient,
 } from '@algorandfoundation/algokit-utils/types/app-client'
 import type { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import type { SendTransactionResult, TransactionToSign, SendTransactionFrom } from '@algorandfoundation/algokit-utils/types/transaction'
+import type {
+    SendTransactionResult,
+    TransactionToSign,
+    SendTransactionFrom,
+} from '@algorandfoundation/algokit-utils/types/transaction'
 import type { TransactionWithSigner } from 'algosdk'
-import { Algodv2, OnApplicationComplete, Transaction, AtomicTransactionComposer } from 'algosdk'
+import {
+    Algodv2,
+    OnApplicationComplete,
+    Transaction,
+    AtomicTransactionComposer,
+} from 'algosdk'
 export const APP_SPEC: AppSpec = {
-  "hints": {
-    "list_nft(axfer,uint64,uint64,uint64)bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    },
-    "delist_nft(pay)bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    },
-    "opt_in_to_asset(pay)bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    },
-    "rent_nft(pay,uint64)bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    },
-    "return_nft(axfer)bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    },
-    "claim_deposit()bool": {
-      "call_config": {
-        "no_op": "CALL"
-      }
-    }
-  },
-  "source": {
-    "approval": "I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSA0IDgKYnl0ZWNibG9jayAweCAweDE1MWY3Yzc1IDB4MDAKdHhuIE51bUFwcEFyZ3MKaW50Y18wIC8vIDAKPT0KYm56IG1haW5fbDE0CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4NTM0MTZkMzggLy8gImxpc3RfbmZ0KGF4ZmVyLHVpbnQ2NCx1aW50NjQsdWludDY0KWJvb2wiCj09CmJueiBtYWluX2wxMwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGUwZDFkYTZjIC8vICJkZWxpc3RfbmZ0KHBheSlib29sIgo9PQpibnogbWFpbl9sMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgyZWRlZjExMiAvLyAib3B0X2luX3RvX2Fzc2V0KHBheSlib29sIgo9PQpibnogbWFpbl9sMTEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg5ODM4M2ZkMyAvLyAicmVudF9uZnQocGF5LHVpbnQ2NClib29sIgo9PQpibnogbWFpbl9sMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgzMGM1NDc0ZiAvLyAicmV0dXJuX25mdChheGZlcilib29sIgo9PQpibnogbWFpbl9sOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDk4ZDI1YzBlIC8vICJjbGFpbV9kZXBvc2l0KClib29sIgo9PQpibnogbWFpbl9sOAplcnIKbWFpbl9sODoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBjbGFpbWRlcG9zaXRjYXN0ZXJfMTMKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDk6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgcmV0dXJubmZ0Y2FzdGVyXzEyCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiByZW50bmZ0Y2FzdGVyXzExCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBvcHRpbnRvYXNzZXRjYXN0ZXJfMTAKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDEyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGRlbGlzdG5mdGNhc3Rlcl85CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMzoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBsaXN0bmZ0Y2FzdGVyXzgKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDE0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2wyMAp0eG4gT25Db21wbGV0aW9uCmludGNfMiAvLyBVcGRhdGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTkKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDUgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDE4CmVycgptYWluX2wxODoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KYXNzZXJ0CmNhbGxzdWIgZGVsZXRlXzEKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDE5Ogp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQphc3NlcnQKY2FsbHN1YiB1cGRhdGVfMAppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIHVwZGF0ZQp1cGRhdGVfMDoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGRlbGV0ZQpkZWxldGVfMToKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX0RFTEVUQUJMRSAvLyBUTVBMX0RFTEVUQUJMRQovLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGxpc3RfbmZ0Cmxpc3RuZnRfMjoKcHJvdG8gNCAxCmludGNfMCAvLyAwCmJ5dGVjXzAgLy8gIiIKZHVwCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCmZyYW1lX2RpZyAtNApndHhucyBYZmVyQXNzZXQKPT0KYXNzZXJ0CnR4biBTZW5kZXIKZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmxlbgpwdXNoaW50IDMyIC8vIDMyCj09CmFzc2VydApmcmFtZV9kaWcgLTMKaXRvYgpmcmFtZV9kaWcgLTIKaXRvYgpjb25jYXQKZnJhbWVfZGlnIC0xCml0b2IKY29uY2F0CmZyYW1lX2RpZyAxCmNvbmNhdApmcmFtZV9idXJ5IDIKdHhuYSBBc3NldHMgMAppdG9iCmJveF9kZWwKcG9wCnR4bmEgQXNzZXRzIDAKaXRvYgpmcmFtZV9kaWcgMgpib3hfcHV0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlbGlzdF9uZnQKZGVsaXN0bmZ0XzM6CnByb3RvIDEgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmR1cApmcmFtZV9kaWcgLTEKZ3R4bnMgUmVjZWl2ZXIKZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKPT0KYXNzZXJ0CmZyYW1lX2RpZyAtMQpndHhucyBBbW91bnQKcHVzaGludCAxMDAwIC8vIDEwMDAKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZ2V0CnN0b3JlIDEKc3RvcmUgMApsb2FkIDEKYXNzZXJ0CmxvYWQgMApmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZXh0cmFjdCAyNCAwCmZyYW1lX2J1cnkgMgpmcmFtZV9kaWcgMgp0eG4gU2VuZGVyCj09CmFzc2VydAppdHhuX2JlZ2luCmludGNfMiAvLyBheGZlcgppdHhuX2ZpZWxkIFR5cGVFbnVtCmludGNfMSAvLyAxCml0eG5fZmllbGQgQXNzZXRBbW91bnQKdHhuIFNlbmRlcgppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2RlbAphc3NlcnQKaW50Y18xIC8vIDEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gb3B0X2luX3RvX2Fzc2V0Cm9wdGludG9hc3NldF80Ogpwcm90byAxIDEKaW50Y18wIC8vIDAKdHhuIE51bUFzc2V0cwppbnRjXzAgLy8gMAo9PQohCmFzc2VydAp0eG5hIEFzc2V0cyAwCmFzc2V0X3BhcmFtc19nZXQgQXNzZXREZWNpbWFscwpzdG9yZSAzCnN0b3JlIDIKbG9hZCAzCmFzc2VydApsb2FkIDIKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKYXNzZXRfcGFyYW1zX2dldCBBc3NldFRvdGFsCnN0b3JlIDUKc3RvcmUgNApsb2FkIDUKYXNzZXJ0CmxvYWQgNAppbnRjXzEgLy8gMQo9PQphc3NlcnQKZnJhbWVfZGlnIC0xCmd0eG5zIFNlbmRlcgp0eG4gU2VuZGVyCj09CmFzc2VydApmcmFtZV9kaWcgLTEKZ3R4bnMgUmVjZWl2ZXIKZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKPT0KYXNzZXJ0CmZyYW1lX2RpZyAtMQpndHhucyBBbW91bnQKcHVzaGludCAxMDAwMDAwIC8vIDEwMDAwMDAKPT0KYXNzZXJ0Cml0eG5fYmVnaW4KaW50Y18yIC8vIGF4ZmVyCml0eG5fZmllbGQgVHlwZUVudW0KaW50Y18wIC8vIDAKaXR4bl9maWVsZCBBc3NldEFtb3VudApnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyByZW50X25mdApyZW50bmZ0XzU6CnByb3RvIDIgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cG4gMgpieXRlY18wIC8vICIiCmR1cAppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2dldApzdG9yZSA3CnN0b3JlIDYKbG9hZCA3CmFzc2VydApsb2FkIDYKZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmludGNfMCAvLyAwCmV4dHJhY3RfdWludDY0CmZyYW1lX2J1cnkgMgpmcmFtZV9kaWcgMQppbnRjXzMgLy8gOApleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDMKZnJhbWVfZGlnIDEKcHVzaGludCAxNiAvLyAxNgpleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDQKZnJhbWVfZGlnIDEKZXh0cmFjdCAyNCAwCmZyYW1lX2J1cnkgNQp0eG4gU2VuZGVyCmZyYW1lX2J1cnkgNgpmcmFtZV9kaWcgNgpsZW4KcHVzaGludCAzMiAvLyAzMgo9PQphc3NlcnQKZnJhbWVfZGlnIDQKZnJhbWVfZGlnIC0xCj49CmFzc2VydApmcmFtZV9kaWcgLTIKZ3R4bnMgQW1vdW50CmZyYW1lX2RpZyAyCmZyYW1lX2RpZyAtMQpmcmFtZV9kaWcgMwoqCisKcHVzaGludCA0MDAwIC8vIDQwMDAKKwo9PQphc3NlcnQKcHVzaGludCA4NjQwMCAvLyA4NjQwMApmcmFtZV9kaWcgLTEKKgp0eG4gRmlyc3RWYWxpZFRpbWUKKwpmcmFtZV9idXJ5IDcKZnJhbWVfZGlnIDcKaXRvYgpmcmFtZV9kaWcgMgppdG9iCmNvbmNhdApmcmFtZV9kaWcgNQpjb25jYXQKZnJhbWVfZGlnIDYKY29uY2F0CmZyYW1lX2J1cnkgOAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2RlbAphc3NlcnQKdHhuYSBBc3NldHMgMAppdG9iCmJveF9kZWwKcG9wCnR4bmEgQXNzZXRzIDAKaXRvYgpmcmFtZV9kaWcgOApib3hfcHV0Cml0eG5fYmVnaW4KaW50Y18yIC8vIGF4ZmVyCml0eG5fZmllbGQgVHlwZUVudW0KaW50Y18xIC8vIDEKaXR4bl9maWVsZCBBc3NldEFtb3VudApmcmFtZV9kaWcgNgppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgLTEKZnJhbWVfZGlnIDMKKgppdHhuX2ZpZWxkIEFtb3VudApmcmFtZV9kaWcgNQppdHhuX2ZpZWxkIFJlY2VpdmVyCml0eG5fc3VibWl0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHJldHVybl9uZnQKcmV0dXJubmZ0XzY6CnByb3RvIDEgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCmZyYW1lX2RpZyAtMQpndHhucyBYZmVyQXNzZXQKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZ2V0CnN0b3JlIDkKc3RvcmUgOApsb2FkIDkKYXNzZXJ0CmxvYWQgOApmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKaW50Y18zIC8vIDgKZXh0cmFjdF91aW50NjQKZnJhbWVfYnVyeSAyCmZyYW1lX2RpZyAxCmludGNfMCAvLyAwCmV4dHJhY3RfdWludDY0CmZyYW1lX2J1cnkgMwpmcmFtZV9kaWcgMQpleHRyYWN0IDE2IDMyCmZyYW1lX2J1cnkgNApmcmFtZV9kaWcgMQpleHRyYWN0IDQ4IDAKZnJhbWVfYnVyeSA1CnR4biBGaXJzdFZhbGlkVGltZQpmcmFtZV9kaWcgMwo8CmFzc2VydAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgMgppdHhuX2ZpZWxkIEFtb3VudAp0eG4gU2VuZGVyCml0eG5fZmllbGQgUmVjZWl2ZXIKaXR4bl9zdWJtaXQKaXR4bl9iZWdpbgppbnRjXzIgLy8gYXhmZXIKaXR4bl9maWVsZCBUeXBlRW51bQppbnRjXzEgLy8gMQppdHhuX2ZpZWxkIEFzc2V0QW1vdW50CmZyYW1lX2RpZyA0Cml0eG5fZmllbGQgQXNzZXRSZWNlaXZlcgp0eG5hIEFzc2V0cyAwCml0eG5fZmllbGQgWGZlckFzc2V0Cml0eG5fc3VibWl0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZGVsCmFzc2VydAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjbGFpbV9kZXBvc2l0CmNsYWltZGVwb3NpdF83Ogpwcm90byAwIDEKaW50Y18wIC8vIDAKYnl0ZWNfMCAvLyAiIgppbnRjXzAgLy8gMApkdXAKYnl0ZWNfMCAvLyAiIgp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2dldApzdG9yZSAxMQpzdG9yZSAxMApsb2FkIDExCmFzc2VydApsb2FkIDEwCmZyYW1lX2J1cnkgMQpmcmFtZV9kaWcgMQppbnRjXzMgLy8gOApleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDIKZnJhbWVfZGlnIDEKaW50Y18wIC8vIDAKZXh0cmFjdF91aW50NjQKZnJhbWVfYnVyeSAzCmZyYW1lX2RpZyAxCmV4dHJhY3QgMTYgMzIKZnJhbWVfYnVyeSA0CmZyYW1lX2RpZyA0CnR4biBTZW5kZXIKPT0KYXNzZXJ0CnR4biBGaXJzdFZhbGlkVGltZQpmcmFtZV9kaWcgMwo+CmFzc2VydAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgMgppdHhuX2ZpZWxkIEFtb3VudApmcmFtZV9kaWcgNAppdHhuX2ZpZWxkIFJlY2VpdmVyCml0eG5fc3VibWl0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZGVsCmFzc2VydAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBsaXN0X25mdF9jYXN0ZXIKbGlzdG5mdGNhc3Rlcl84Ogpwcm90byAwIDAKaW50Y18wIC8vIDAKZHVwbiA0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpmcmFtZV9idXJ5IDIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCmZyYW1lX2J1cnkgMwp0eG5hIEFwcGxpY2F0aW9uQXJncyAzCmJ0b2kKZnJhbWVfYnVyeSA0CnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0KZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmd0eG5zIFR5cGVFbnVtCmludGNfMiAvLyBheGZlcgo9PQphc3NlcnQKZnJhbWVfZGlnIDEKZnJhbWVfZGlnIDIKZnJhbWVfZGlnIDMKZnJhbWVfZGlnIDQKY2FsbHN1YiBsaXN0bmZ0XzIKZnJhbWVfYnVyeSAwCmJ5dGVjXzEgLy8gMHgxNTFmN2M3NQpieXRlY18yIC8vIDB4MDAKaW50Y18wIC8vIDAKZnJhbWVfZGlnIDAKc2V0Yml0CmNvbmNhdApsb2cKcmV0c3ViCgovLyBkZWxpc3RfbmZ0X2Nhc3RlcgpkZWxpc3RuZnRjYXN0ZXJfOToKcHJvdG8gMCAwCmludGNfMCAvLyAwCmR1cAp0eG4gR3JvdXBJbmRleAppbnRjXzEgLy8gMQotCmZyYW1lX2J1cnkgMQpmcmFtZV9kaWcgMQpndHhucyBUeXBlRW51bQppbnRjXzEgLy8gcGF5Cj09CmFzc2VydApmcmFtZV9kaWcgMQpjYWxsc3ViIGRlbGlzdG5mdF8zCmZyYW1lX2J1cnkgMApieXRlY18xIC8vIDB4MTUxZjdjNzUKYnl0ZWNfMiAvLyAweDAwCmludGNfMCAvLyAwCmZyYW1lX2RpZyAwCnNldGJpdApjb25jYXQKbG9nCnJldHN1YgoKLy8gb3B0X2luX3RvX2Fzc2V0X2Nhc3RlcgpvcHRpbnRvYXNzZXRjYXN0ZXJfMTA6CnByb3RvIDAgMAppbnRjXzAgLy8gMApkdXAKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKZnJhbWVfZGlnIDEKY2FsbHN1YiBvcHRpbnRvYXNzZXRfNApmcmFtZV9idXJ5IDAKYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CmJ5dGVjXzIgLy8gMHgwMAppbnRjXzAgLy8gMApmcmFtZV9kaWcgMApzZXRiaXQKY29uY2F0CmxvZwpyZXRzdWIKCi8vIHJlbnRfbmZ0X2Nhc3RlcgpyZW50bmZ0Y2FzdGVyXzExOgpwcm90byAwIDAKaW50Y18wIC8vIDAKZHVwbiAyCnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpmcmFtZV9idXJ5IDIKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKZnJhbWVfZGlnIDEKZnJhbWVfZGlnIDIKY2FsbHN1YiByZW50bmZ0XzUKZnJhbWVfYnVyeSAwCmJ5dGVjXzEgLy8gMHgxNTFmN2M3NQpieXRlY18yIC8vIDB4MDAKaW50Y18wIC8vIDAKZnJhbWVfZGlnIDAKc2V0Yml0CmNvbmNhdApsb2cKcmV0c3ViCgovLyByZXR1cm5fbmZ0X2Nhc3RlcgpyZXR1cm5uZnRjYXN0ZXJfMTI6CnByb3RvIDAgMAppbnRjXzAgLy8gMApkdXAKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18yIC8vIGF4ZmVyCj09CmFzc2VydApmcmFtZV9kaWcgMQpjYWxsc3ViIHJldHVybm5mdF82CmZyYW1lX2J1cnkgMApieXRlY18xIC8vIDB4MTUxZjdjNzUKYnl0ZWNfMiAvLyAweDAwCmludGNfMCAvLyAwCmZyYW1lX2RpZyAwCnNldGJpdApjb25jYXQKbG9nCnJldHN1YgoKLy8gY2xhaW1fZGVwb3NpdF9jYXN0ZXIKY2xhaW1kZXBvc2l0Y2FzdGVyXzEzOgpwcm90byAwIDAKaW50Y18wIC8vIDAKY2FsbHN1YiBjbGFpbWRlcG9zaXRfNwpmcmFtZV9idXJ5IDAKYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CmJ5dGVjXzIgLy8gMHgwMAppbnRjXzAgLy8gMApmcmFtZV9kaWcgMApzZXRiaXQKY29uY2F0CmxvZwpyZXRzdWI=",
-    "clear": "I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu"
-  },
-  "state": {
-    "global": {
-      "num_byte_slices": 0,
-      "num_uints": 0
-    },
-    "local": {
-      "num_byte_slices": 0,
-      "num_uints": 0
-    }
-  },
-  "schema": {
-    "global": {
-      "declared": {},
-      "reserved": {}
-    },
-    "local": {
-      "declared": {},
-      "reserved": {}
-    }
-  },
-  "contract": {
-    "name": "algolen",
-    "methods": [
-      {
-        "name": "list_nft",
-        "args": [
-          {
-            "type": "axfer",
-            "name": "asset_transfer_txn"
-          },
-          {
-            "type": "uint64",
-            "name": "deposit"
-          },
-          {
-            "type": "uint64",
-            "name": "price_per_day"
-          },
-          {
-            "type": "uint64",
-            "name": "max_duration_in_days"
-          }
-        ],
-        "returns": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "delist_nft",
-        "args": [
-          {
-            "type": "pay",
-            "name": "fee_payment_txn"
-          }
-        ],
-        "returns": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "opt_in_to_asset",
-        "args": [
-          {
-            "type": "pay",
-            "name": "deposit_payment_txn"
-          }
-        ],
-        "returns": {
-          "type": "bool"
+    hints: {
+        'list_nft(axfer,uint64,uint64,uint64)bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
         },
-        "desc": "An opt-in contract method\nOne time payment of LISTING_FEE_MICROALGO amount covers opt in, box creation for this nft and a small fee for the platform usage This fee is to be paid per NFT and permanently enables the listing of this NFT"
-      },
-      {
-        "name": "rent_nft",
-        "args": [
-          {
-            "type": "pay",
-            "name": "payment_txn"
-          },
-          {
-            "type": "uint64",
-            "name": "duration_in_days"
-          }
+        'delist_nft(pay)bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
+        },
+        'opt_in_to_asset(pay)bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
+        },
+        'rent_nft(pay,uint64)bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
+        },
+        'return_nft(axfer)bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
+        },
+        'claim_deposit()bool': {
+            call_config: {
+                no_op: 'CALL',
+            },
+        },
+    },
+    source: {
+        approval:
+            'I3ByYWdtYSB2ZXJzaW9uIDgKaW50Y2Jsb2NrIDAgMSA0IDgKYnl0ZWNibG9jayAweCAweDE1MWY3Yzc1IDB4MDAKdHhuIE51bUFwcEFyZ3MKaW50Y18wIC8vIDAKPT0KYm56IG1haW5fbDE0CnR4bmEgQXBwbGljYXRpb25BcmdzIDAKcHVzaGJ5dGVzIDB4NTM0MTZkMzggLy8gImxpc3RfbmZ0KGF4ZmVyLHVpbnQ2NCx1aW50NjQsdWludDY0KWJvb2wiCj09CmJueiBtYWluX2wxMwp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweGUwZDFkYTZjIC8vICJkZWxpc3RfbmZ0KHBheSlib29sIgo9PQpibnogbWFpbl9sMTIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgyZWRlZjExMiAvLyAib3B0X2luX3RvX2Fzc2V0KHBheSlib29sIgo9PQpibnogbWFpbl9sMTEKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHg5ODM4M2ZkMyAvLyAicmVudF9uZnQocGF5LHVpbnQ2NClib29sIgo9PQpibnogbWFpbl9sMTAKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMApwdXNoYnl0ZXMgMHgzMGM1NDc0ZiAvLyAicmV0dXJuX25mdChheGZlcilib29sIgo9PQpibnogbWFpbl9sOQp0eG5hIEFwcGxpY2F0aW9uQXJncyAwCnB1c2hieXRlcyAweDk4ZDI1YzBlIC8vICJjbGFpbV9kZXBvc2l0KClib29sIgo9PQpibnogbWFpbl9sOAplcnIKbWFpbl9sODoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBjbGFpbWRlcG9zaXRjYXN0ZXJfMTMKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDk6CnR4biBPbkNvbXBsZXRpb24KaW50Y18wIC8vIE5vT3AKPT0KdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KJiYKYXNzZXJ0CmNhbGxzdWIgcmV0dXJubmZ0Y2FzdGVyXzEyCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMDoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiByZW50bmZ0Y2FzdGVyXzExCmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMToKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBvcHRpbnRvYXNzZXRjYXN0ZXJfMTAKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDEyOgp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCiE9CiYmCmFzc2VydApjYWxsc3ViIGRlbGlzdG5mdGNhc3Rlcl85CmludGNfMSAvLyAxCnJldHVybgptYWluX2wxMzoKdHhuIE9uQ29tcGxldGlvbgppbnRjXzAgLy8gTm9PcAo9PQp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQomJgphc3NlcnQKY2FsbHN1YiBsaXN0bmZ0Y2FzdGVyXzgKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDE0Ogp0eG4gT25Db21wbGV0aW9uCmludGNfMCAvLyBOb09wCj09CmJueiBtYWluX2wyMAp0eG4gT25Db21wbGV0aW9uCmludGNfMiAvLyBVcGRhdGVBcHBsaWNhdGlvbgo9PQpibnogbWFpbl9sMTkKdHhuIE9uQ29tcGxldGlvbgpwdXNoaW50IDUgLy8gRGVsZXRlQXBwbGljYXRpb24KPT0KYm56IG1haW5fbDE4CmVycgptYWluX2wxODoKdHhuIEFwcGxpY2F0aW9uSUQKaW50Y18wIC8vIDAKIT0KYXNzZXJ0CmNhbGxzdWIgZGVsZXRlXzEKaW50Y18xIC8vIDEKcmV0dXJuCm1haW5fbDE5Ogp0eG4gQXBwbGljYXRpb25JRAppbnRjXzAgLy8gMAohPQphc3NlcnQKY2FsbHN1YiB1cGRhdGVfMAppbnRjXzEgLy8gMQpyZXR1cm4KbWFpbl9sMjA6CnR4biBBcHBsaWNhdGlvbklECmludGNfMCAvLyAwCj09CmFzc2VydAppbnRjXzEgLy8gMQpyZXR1cm4KCi8vIHVwZGF0ZQp1cGRhdGVfMDoKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX1VQREFUQUJMRSAvLyBUTVBMX1VQREFUQUJMRQovLyBDaGVjayBhcHAgaXMgdXBkYXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGRlbGV0ZQpkZWxldGVfMToKcHJvdG8gMCAwCnR4biBTZW5kZXIKZ2xvYmFsIENyZWF0b3JBZGRyZXNzCj09Ci8vIHVuYXV0aG9yaXplZAphc3NlcnQKcHVzaGludCBUTVBMX0RFTEVUQUJMRSAvLyBUTVBMX0RFTEVUQUJMRQovLyBDaGVjayBhcHAgaXMgZGVsZXRhYmxlCmFzc2VydApyZXRzdWIKCi8vIGxpc3RfbmZ0Cmxpc3RuZnRfMjoKcHJvdG8gNCAxCmludGNfMCAvLyAwCmJ5dGVjXzAgLy8gIiIKZHVwCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCmZyYW1lX2RpZyAtNApndHhucyBYZmVyQXNzZXQKPT0KYXNzZXJ0CnR4biBTZW5kZXIKZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmxlbgpwdXNoaW50IDMyIC8vIDMyCj09CmFzc2VydApmcmFtZV9kaWcgLTMKaXRvYgpmcmFtZV9kaWcgLTIKaXRvYgpjb25jYXQKZnJhbWVfZGlnIC0xCml0b2IKY29uY2F0CmZyYW1lX2RpZyAxCmNvbmNhdApmcmFtZV9idXJ5IDIKdHhuYSBBc3NldHMgMAppdG9iCmJveF9kZWwKcG9wCnR4bmEgQXNzZXRzIDAKaXRvYgpmcmFtZV9kaWcgMgpib3hfcHV0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIGRlbGlzdF9uZnQKZGVsaXN0bmZ0XzM6CnByb3RvIDEgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmR1cApmcmFtZV9kaWcgLTEKZ3R4bnMgUmVjZWl2ZXIKZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKPT0KYXNzZXJ0CmZyYW1lX2RpZyAtMQpndHhucyBBbW91bnQKcHVzaGludCAxMDAwIC8vIDEwMDAKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZ2V0CnN0b3JlIDEKc3RvcmUgMApsb2FkIDEKYXNzZXJ0CmxvYWQgMApmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZXh0cmFjdCAyNCAwCmZyYW1lX2J1cnkgMgpmcmFtZV9kaWcgMgp0eG4gU2VuZGVyCj09CmFzc2VydAppdHhuX2JlZ2luCmludGNfMiAvLyBheGZlcgppdHhuX2ZpZWxkIFR5cGVFbnVtCmludGNfMSAvLyAxCml0eG5fZmllbGQgQXNzZXRBbW91bnQKdHhuIFNlbmRlcgppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2RlbAphc3NlcnQKaW50Y18xIC8vIDEKZnJhbWVfYnVyeSAwCnJldHN1YgoKLy8gb3B0X2luX3RvX2Fzc2V0Cm9wdGludG9hc3NldF80Ogpwcm90byAxIDEKaW50Y18wIC8vIDAKdHhuIE51bUFzc2V0cwppbnRjXzAgLy8gMAo9PQohCmFzc2VydAp0eG5hIEFzc2V0cyAwCmFzc2V0X3BhcmFtc19nZXQgQXNzZXREZWNpbWFscwpzdG9yZSAzCnN0b3JlIDIKbG9hZCAzCmFzc2VydApsb2FkIDIKaW50Y18wIC8vIDAKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKYXNzZXRfcGFyYW1zX2dldCBBc3NldFRvdGFsCnN0b3JlIDUKc3RvcmUgNApsb2FkIDUKYXNzZXJ0CmxvYWQgNAppbnRjXzEgLy8gMQo9PQphc3NlcnQKZnJhbWVfZGlnIC0xCmd0eG5zIFNlbmRlcgp0eG4gU2VuZGVyCj09CmFzc2VydApmcmFtZV9kaWcgLTEKZ3R4bnMgUmVjZWl2ZXIKZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKPT0KYXNzZXJ0CmZyYW1lX2RpZyAtMQpndHhucyBBbW91bnQKcHVzaGludCAxMDAwMDAwIC8vIDEwMDAwMDAKPT0KYXNzZXJ0Cml0eG5fYmVnaW4KaW50Y18yIC8vIGF4ZmVyCml0eG5fZmllbGQgVHlwZUVudW0KaW50Y18wIC8vIDAKaXR4bl9maWVsZCBBc3NldEFtb3VudApnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyByZW50X25mdApyZW50bmZ0XzU6CnByb3RvIDIgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cG4gMgpieXRlY18wIC8vICIiCmR1cAppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2dldApzdG9yZSA3CnN0b3JlIDYKbG9hZCA3CmFzc2VydApsb2FkIDYKZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmludGNfMCAvLyAwCmV4dHJhY3RfdWludDY0CmZyYW1lX2J1cnkgMgpmcmFtZV9kaWcgMQppbnRjXzMgLy8gOApleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDMKZnJhbWVfZGlnIDEKcHVzaGludCAxNiAvLyAxNgpleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDQKZnJhbWVfZGlnIDEKZXh0cmFjdCAyNCAwCmZyYW1lX2J1cnkgNQp0eG4gU2VuZGVyCmZyYW1lX2J1cnkgNgpmcmFtZV9kaWcgNgpsZW4KcHVzaGludCAzMiAvLyAzMgo9PQphc3NlcnQKZnJhbWVfZGlnIDQKZnJhbWVfZGlnIC0xCj49CmFzc2VydApmcmFtZV9kaWcgLTIKZ3R4bnMgQW1vdW50CmZyYW1lX2RpZyAyCmZyYW1lX2RpZyAtMQpmcmFtZV9kaWcgMwoqCisKcHVzaGludCA0MDAwIC8vIDQwMDAKKwo9PQphc3NlcnQKcHVzaGludCA4NjQwMCAvLyA4NjQwMApmcmFtZV9kaWcgLTEKKgp0eG4gRmlyc3RWYWxpZFRpbWUKKwpmcmFtZV9idXJ5IDcKZnJhbWVfZGlnIDcKaXRvYgpmcmFtZV9kaWcgMgppdG9iCmNvbmNhdApmcmFtZV9kaWcgNQpjb25jYXQKZnJhbWVfZGlnIDYKY29uY2F0CmZyYW1lX2J1cnkgOAp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2RlbAphc3NlcnQKdHhuYSBBc3NldHMgMAppdG9iCmJveF9kZWwKcG9wCnR4bmEgQXNzZXRzIDAKaXRvYgpmcmFtZV9kaWcgOApib3hfcHV0Cml0eG5fYmVnaW4KaW50Y18yIC8vIGF4ZmVyCml0eG5fZmllbGQgVHlwZUVudW0KaW50Y18xIC8vIDEKaXR4bl9maWVsZCBBc3NldEFtb3VudApmcmFtZV9kaWcgNgppdHhuX2ZpZWxkIEFzc2V0UmVjZWl2ZXIKdHhuYSBBc3NldHMgMAppdHhuX2ZpZWxkIFhmZXJBc3NldAppdHhuX3N1Ym1pdAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgLTEKZnJhbWVfZGlnIDMKKgppdHhuX2ZpZWxkIEFtb3VudApmcmFtZV9kaWcgNQppdHhuX2ZpZWxkIFJlY2VpdmVyCml0eG5fc3VibWl0CmludGNfMSAvLyAxCmZyYW1lX2J1cnkgMApyZXRzdWIKCi8vIHJldHVybl9uZnQKcmV0dXJubmZ0XzY6CnByb3RvIDEgMQppbnRjXzAgLy8gMApieXRlY18wIC8vICIiCmludGNfMCAvLyAwCmR1cApieXRlY18wIC8vICIiCmR1cAp0eG5hIEFzc2V0cyAwCmZyYW1lX2RpZyAtMQpndHhucyBYZmVyQXNzZXQKPT0KYXNzZXJ0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZ2V0CnN0b3JlIDkKc3RvcmUgOApsb2FkIDkKYXNzZXJ0CmxvYWQgOApmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKaW50Y18zIC8vIDgKZXh0cmFjdF91aW50NjQKZnJhbWVfYnVyeSAyCmZyYW1lX2RpZyAxCmludGNfMCAvLyAwCmV4dHJhY3RfdWludDY0CmZyYW1lX2J1cnkgMwpmcmFtZV9kaWcgMQpleHRyYWN0IDE2IDMyCmZyYW1lX2J1cnkgNApmcmFtZV9kaWcgMQpleHRyYWN0IDQ4IDAKZnJhbWVfYnVyeSA1CnR4biBGaXJzdFZhbGlkVGltZQpmcmFtZV9kaWcgMwo8CmFzc2VydAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgMgppdHhuX2ZpZWxkIEFtb3VudAp0eG4gU2VuZGVyCml0eG5fZmllbGQgUmVjZWl2ZXIKaXR4bl9zdWJtaXQKaXR4bl9iZWdpbgppbnRjXzIgLy8gYXhmZXIKaXR4bl9maWVsZCBUeXBlRW51bQppbnRjXzEgLy8gMQppdHhuX2ZpZWxkIEFzc2V0QW1vdW50CmZyYW1lX2RpZyA0Cml0eG5fZmllbGQgQXNzZXRSZWNlaXZlcgp0eG5hIEFzc2V0cyAwCml0eG5fZmllbGQgWGZlckFzc2V0Cml0eG5fc3VibWl0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZGVsCmFzc2VydAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBjbGFpbV9kZXBvc2l0CmNsYWltZGVwb3NpdF83Ogpwcm90byAwIDEKaW50Y18wIC8vIDAKYnl0ZWNfMCAvLyAiIgppbnRjXzAgLy8gMApkdXAKYnl0ZWNfMCAvLyAiIgp0eG5hIEFzc2V0cyAwCml0b2IKYm94X2dldApzdG9yZSAxMQpzdG9yZSAxMApsb2FkIDExCmFzc2VydApsb2FkIDEwCmZyYW1lX2J1cnkgMQpmcmFtZV9kaWcgMQppbnRjXzMgLy8gOApleHRyYWN0X3VpbnQ2NApmcmFtZV9idXJ5IDIKZnJhbWVfZGlnIDEKaW50Y18wIC8vIDAKZXh0cmFjdF91aW50NjQKZnJhbWVfYnVyeSAzCmZyYW1lX2RpZyAxCmV4dHJhY3QgMTYgMzIKZnJhbWVfYnVyeSA0CmZyYW1lX2RpZyA0CnR4biBTZW5kZXIKPT0KYXNzZXJ0CnR4biBGaXJzdFZhbGlkVGltZQpmcmFtZV9kaWcgMwo+CmFzc2VydAppdHhuX2JlZ2luCmludGNfMSAvLyBwYXkKaXR4bl9maWVsZCBUeXBlRW51bQpmcmFtZV9kaWcgMgppdHhuX2ZpZWxkIEFtb3VudApmcmFtZV9kaWcgNAppdHhuX2ZpZWxkIFJlY2VpdmVyCml0eG5fc3VibWl0CnR4bmEgQXNzZXRzIDAKaXRvYgpib3hfZGVsCmFzc2VydAppbnRjXzEgLy8gMQpmcmFtZV9idXJ5IDAKcmV0c3ViCgovLyBsaXN0X25mdF9jYXN0ZXIKbGlzdG5mdGNhc3Rlcl84Ogpwcm90byAwIDAKaW50Y18wIC8vIDAKZHVwbiA0CnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpmcmFtZV9idXJ5IDIKdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgpidG9pCmZyYW1lX2J1cnkgMwp0eG5hIEFwcGxpY2F0aW9uQXJncyAzCmJ0b2kKZnJhbWVfYnVyeSA0CnR4biBHcm91cEluZGV4CmludGNfMSAvLyAxCi0KZnJhbWVfYnVyeSAxCmZyYW1lX2RpZyAxCmd0eG5zIFR5cGVFbnVtCmludGNfMiAvLyBheGZlcgo9PQphc3NlcnQKZnJhbWVfZGlnIDEKZnJhbWVfZGlnIDIKZnJhbWVfZGlnIDMKZnJhbWVfZGlnIDQKY2FsbHN1YiBsaXN0bmZ0XzIKZnJhbWVfYnVyeSAwCmJ5dGVjXzEgLy8gMHgxNTFmN2M3NQpieXRlY18yIC8vIDB4MDAKaW50Y18wIC8vIDAKZnJhbWVfZGlnIDAKc2V0Yml0CmNvbmNhdApsb2cKcmV0c3ViCgovLyBkZWxpc3RfbmZ0X2Nhc3RlcgpkZWxpc3RuZnRjYXN0ZXJfOToKcHJvdG8gMCAwCmludGNfMCAvLyAwCmR1cAp0eG4gR3JvdXBJbmRleAppbnRjXzEgLy8gMQotCmZyYW1lX2J1cnkgMQpmcmFtZV9kaWcgMQpndHhucyBUeXBlRW51bQppbnRjXzEgLy8gcGF5Cj09CmFzc2VydApmcmFtZV9kaWcgMQpjYWxsc3ViIGRlbGlzdG5mdF8zCmZyYW1lX2J1cnkgMApieXRlY18xIC8vIDB4MTUxZjdjNzUKYnl0ZWNfMiAvLyAweDAwCmludGNfMCAvLyAwCmZyYW1lX2RpZyAwCnNldGJpdApjb25jYXQKbG9nCnJldHN1YgoKLy8gb3B0X2luX3RvX2Fzc2V0X2Nhc3RlcgpvcHRpbnRvYXNzZXRjYXN0ZXJfMTA6CnByb3RvIDAgMAppbnRjXzAgLy8gMApkdXAKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKZnJhbWVfZGlnIDEKY2FsbHN1YiBvcHRpbnRvYXNzZXRfNApmcmFtZV9idXJ5IDAKYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CmJ5dGVjXzIgLy8gMHgwMAppbnRjXzAgLy8gMApmcmFtZV9kaWcgMApzZXRiaXQKY29uY2F0CmxvZwpyZXRzdWIKCi8vIHJlbnRfbmZ0X2Nhc3RlcgpyZW50bmZ0Y2FzdGVyXzExOgpwcm90byAwIDAKaW50Y18wIC8vIDAKZHVwbiAyCnR4bmEgQXBwbGljYXRpb25BcmdzIDEKYnRvaQpmcmFtZV9idXJ5IDIKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18xIC8vIHBheQo9PQphc3NlcnQKZnJhbWVfZGlnIDEKZnJhbWVfZGlnIDIKY2FsbHN1YiByZW50bmZ0XzUKZnJhbWVfYnVyeSAwCmJ5dGVjXzEgLy8gMHgxNTFmN2M3NQpieXRlY18yIC8vIDB4MDAKaW50Y18wIC8vIDAKZnJhbWVfZGlnIDAKc2V0Yml0CmNvbmNhdApsb2cKcmV0c3ViCgovLyByZXR1cm5fbmZ0X2Nhc3RlcgpyZXR1cm5uZnRjYXN0ZXJfMTI6CnByb3RvIDAgMAppbnRjXzAgLy8gMApkdXAKdHhuIEdyb3VwSW5kZXgKaW50Y18xIC8vIDEKLQpmcmFtZV9idXJ5IDEKZnJhbWVfZGlnIDEKZ3R4bnMgVHlwZUVudW0KaW50Y18yIC8vIGF4ZmVyCj09CmFzc2VydApmcmFtZV9kaWcgMQpjYWxsc3ViIHJldHVybm5mdF82CmZyYW1lX2J1cnkgMApieXRlY18xIC8vIDB4MTUxZjdjNzUKYnl0ZWNfMiAvLyAweDAwCmludGNfMCAvLyAwCmZyYW1lX2RpZyAwCnNldGJpdApjb25jYXQKbG9nCnJldHN1YgoKLy8gY2xhaW1fZGVwb3NpdF9jYXN0ZXIKY2xhaW1kZXBvc2l0Y2FzdGVyXzEzOgpwcm90byAwIDAKaW50Y18wIC8vIDAKY2FsbHN1YiBjbGFpbWRlcG9zaXRfNwpmcmFtZV9idXJ5IDAKYnl0ZWNfMSAvLyAweDE1MWY3Yzc1CmJ5dGVjXzIgLy8gMHgwMAppbnRjXzAgLy8gMApmcmFtZV9kaWcgMApzZXRiaXQKY29uY2F0CmxvZwpyZXRzdWI=',
+        clear: 'I3ByYWdtYSB2ZXJzaW9uIDgKcHVzaGludCAwIC8vIDAKcmV0dXJu',
+    },
+    state: {
+        global: {
+            num_byte_slices: 0,
+            num_uints: 0,
+        },
+        local: {
+            num_byte_slices: 0,
+            num_uints: 0,
+        },
+    },
+    schema: {
+        global: {
+            declared: {},
+            reserved: {},
+        },
+        local: {
+            declared: {},
+            reserved: {},
+        },
+    },
+    contract: {
+        name: 'algolen',
+        methods: [
+            {
+                name: 'list_nft',
+                args: [
+                    {
+                        type: 'axfer',
+                        name: 'asset_transfer_txn',
+                    },
+                    {
+                        type: 'uint64',
+                        name: 'deposit',
+                    },
+                    {
+                        type: 'uint64',
+                        name: 'price_per_day',
+                    },
+                    {
+                        type: 'uint64',
+                        name: 'max_duration_in_days',
+                    },
+                ],
+                returns: {
+                    type: 'bool',
+                },
+            },
+            {
+                name: 'delist_nft',
+                args: [
+                    {
+                        type: 'pay',
+                        name: 'fee_payment_txn',
+                    },
+                ],
+                returns: {
+                    type: 'bool',
+                },
+            },
+            {
+                name: 'opt_in_to_asset',
+                args: [
+                    {
+                        type: 'pay',
+                        name: 'deposit_payment_txn',
+                    },
+                ],
+                returns: {
+                    type: 'bool',
+                },
+                desc: 'An opt-in contract method\nOne time payment of LISTING_FEE_MICROALGO amount covers opt in, box creation for this nft and a small fee for the platform usage This fee is to be paid per NFT and permanently enables the listing of this NFT',
+            },
+            {
+                name: 'rent_nft',
+                args: [
+                    {
+                        type: 'pay',
+                        name: 'payment_txn',
+                    },
+                    {
+                        type: 'uint64',
+                        name: 'duration_in_days',
+                    },
+                ],
+                returns: {
+                    type: 'bool',
+                },
+            },
+            {
+                name: 'return_nft',
+                args: [
+                    {
+                        type: 'axfer',
+                        name: 'asset_transfer_txn',
+                    },
+                ],
+                returns: {
+                    type: 'bool',
+                },
+            },
+            {
+                name: 'claim_deposit',
+                args: [],
+                returns: {
+                    type: 'bool',
+                },
+            },
         ],
-        "returns": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "return_nft",
-        "args": [
-          {
-            "type": "axfer",
-            "name": "asset_transfer_txn"
-          }
-        ],
-        "returns": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "claim_deposit",
-        "args": [],
-        "returns": {
-          "type": "bool"
-        }
-      }
-    ],
-    "networks": {},
-    "desc": "Algolen Contract"
-  },
-  "bare_call_config": {
-    "delete_application": "CALL",
-    "no_op": "CREATE",
-    "update_application": "CALL"
-  }
+        networks: {},
+        desc: 'Algolen Contract',
+    },
+    bare_call_config: {
+        delete_application: 'CALL',
+        no_op: 'CREATE',
+        update_application: 'CALL',
+    },
 }
 
 /**
  * Defines an onCompletionAction of 'no_op'
  */
-export type OnCompleteNoOp =  { onCompleteAction?: 'no_op' | OnApplicationComplete.NoOpOC }
+export type OnCompleteNoOp = {
+    onCompleteAction?: 'no_op' | OnApplicationComplete.NoOpOC
+}
 /**
  * Defines an onCompletionAction of 'opt_in'
  */
-export type OnCompleteOptIn =  { onCompleteAction: 'opt_in' | OnApplicationComplete.OptInOC }
+export type OnCompleteOptIn = {
+    onCompleteAction: 'opt_in' | OnApplicationComplete.OptInOC
+}
 /**
  * Defines an onCompletionAction of 'close_out'
  */
-export type OnCompleteCloseOut =  { onCompleteAction: 'close_out' | OnApplicationComplete.CloseOutOC }
+export type OnCompleteCloseOut = {
+    onCompleteAction: 'close_out' | OnApplicationComplete.CloseOutOC
+}
 /**
  * Defines an onCompletionAction of 'delete_application'
  */
-export type OnCompleteDelApp =  { onCompleteAction: 'delete_application' | OnApplicationComplete.DeleteApplicationOC }
+export type OnCompleteDelApp = {
+    onCompleteAction:
+        | 'delete_application'
+        | OnApplicationComplete.DeleteApplicationOC
+}
 /**
  * Defines an onCompletionAction of 'update_application'
  */
-export type OnCompleteUpdApp =  { onCompleteAction: 'update_application' | OnApplicationComplete.UpdateApplicationOC }
+export type OnCompleteUpdApp = {
+    onCompleteAction:
+        | 'update_application'
+        | OnApplicationComplete.UpdateApplicationOC
+}
 /**
  * A state record containing a single unsigned integer
  */
 export type IntegerState = {
-  /**
-   * Gets the state value as a BigInt 
-   */
-  asBigInt(): bigint
-  /**
-   * Gets the state value as a number.
-   */
-  asNumber(): number
+    /**
+     * Gets the state value as a BigInt
+     */
+    asBigInt(): bigint
+    /**
+     * Gets the state value as a number.
+     */
+    asNumber(): number
 }
 /**
  * A state record containing binary data
  */
 export type BinaryState = {
-  /**
-   * Gets the state value as a Uint8Array
-   */
-  asByteArray(): Uint8Array
-  /**
-   * Gets the state value as a string
-   */
-  asString(): string
+    /**
+     * Gets the state value as a Uint8Array
+     */
+    asByteArray(): Uint8Array
+    /**
+     * Gets the state value as a string
+     */
+    asString(): string
 }
 
 /**
  * Defines the types of available calls and state of the Algolen smart contract.
  */
 export type Algolen = {
-  /**
-   * Maps method signatures / names to their argument and return types.
-   */
-  methods:
-    & Record<'list_nft(axfer,uint64,uint64,uint64)bool' | 'list_nft', {
-      argsObj: {
-        asset_transfer_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>
-        deposit: bigint | number
-        price_per_day: bigint | number
-        max_duration_in_days: bigint | number
-      }
-      argsTuple: [asset_transfer_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>, deposit: bigint | number, price_per_day: bigint | number, max_duration_in_days: bigint | number]
-      returns: boolean
-    }>
-    & Record<'delist_nft(pay)bool' | 'delist_nft', {
-      argsObj: {
-        fee_payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>
-      }
-      argsTuple: [fee_payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>]
-      returns: boolean
-    }>
-    & Record<'opt_in_to_asset(pay)bool' | 'opt_in_to_asset', {
-      argsObj: {
-        deposit_payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>
-      }
-      argsTuple: [deposit_payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>]
-      returns: boolean
-    }>
-    & Record<'rent_nft(pay,uint64)bool' | 'rent_nft', {
-      argsObj: {
-        payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>
-        duration_in_days: bigint | number
-      }
-      argsTuple: [payment_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>, duration_in_days: bigint | number]
-      returns: boolean
-    }>
-    & Record<'return_nft(axfer)bool' | 'return_nft', {
-      argsObj: {
-        asset_transfer_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>
-      }
-      argsTuple: [asset_transfer_txn: TransactionToSign | Transaction | Promise<SendTransactionResult>]
-      returns: boolean
-    }>
-    & Record<'claim_deposit()bool' | 'claim_deposit', {
-      argsObj: {
-      }
-      argsTuple: []
-      returns: boolean
-    }>
+    /**
+     * Maps method signatures / names to their argument and return types.
+     */
+    methods: Record<
+        'list_nft(axfer,uint64,uint64,uint64)bool' | 'list_nft',
+        {
+            argsObj: {
+                asset_transfer_txn:
+                    | TransactionToSign
+                    | Transaction
+                    | Promise<SendTransactionResult>
+                deposit: bigint | number
+                price_per_day: bigint | number
+                max_duration_in_days: bigint | number
+            }
+            argsTuple: [
+                asset_transfer_txn:
+                    | TransactionToSign
+                    | Transaction
+                    | Promise<SendTransactionResult>,
+                deposit: bigint | number,
+                price_per_day: bigint | number,
+                max_duration_in_days: bigint | number,
+            ]
+            returns: boolean
+        }
+    > &
+        Record<
+            'delist_nft(pay)bool' | 'delist_nft',
+            {
+                argsObj: {
+                    fee_payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>
+                }
+                argsTuple: [
+                    fee_payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>,
+                ]
+                returns: boolean
+            }
+        > &
+        Record<
+            'opt_in_to_asset(pay)bool' | 'opt_in_to_asset',
+            {
+                argsObj: {
+                    deposit_payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>
+                }
+                argsTuple: [
+                    deposit_payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>,
+                ]
+                returns: boolean
+            }
+        > &
+        Record<
+            'rent_nft(pay,uint64)bool' | 'rent_nft',
+            {
+                argsObj: {
+                    payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>
+                    duration_in_days: bigint | number
+                }
+                argsTuple: [
+                    payment_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>,
+                    duration_in_days: bigint | number,
+                ]
+                returns: boolean
+            }
+        > &
+        Record<
+            'return_nft(axfer)bool' | 'return_nft',
+            {
+                argsObj: {
+                    asset_transfer_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>
+                }
+                argsTuple: [
+                    asset_transfer_txn:
+                        | TransactionToSign
+                        | Transaction
+                        | Promise<SendTransactionResult>,
+                ]
+                returns: boolean
+            }
+        > &
+        Record<
+            'claim_deposit()bool' | 'claim_deposit',
+            {
+                argsObj: {}
+                argsTuple: []
+                returns: boolean
+            }
+        >
 }
 /**
  * Defines the possible abi call signatures
@@ -289,9 +373,12 @@ export type AlgolenSig = keyof Algolen['methods']
  * Defines an object containing all relevant parameters for a single call to the contract. Where TSignature is undefined, a bare call is made
  */
 export type TypedCallParams<TSignature extends AlgolenSig | undefined> = {
-  method: TSignature
-  methodArgs: TSignature extends undefined ? undefined : Array<ABIAppCallArg | undefined>
-} & AppClientCallCoreParams & CoreAppCallArgs
+    method: TSignature
+    methodArgs: TSignature extends undefined
+        ? undefined
+        : Array<ABIAppCallArg | undefined>
+} & AppClientCallCoreParams &
+    CoreAppCallArgs
 /**
  * Defines the arguments required for a bare call
  */
@@ -299,11 +386,13 @@ export type BareCallArgs = Omit<RawAppCallArgs, keyof CoreAppCallArgs>
 /**
  * Maps a method signature from the Algolen smart contract to the method's arguments in either tuple of struct form
  */
-export type MethodArgs<TSignature extends AlgolenSig> = Algolen['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends AlgolenSig> =
+    Algolen['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
  * Maps a method signature from the Algolen smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends AlgolenSig> = Algolen['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends AlgolenSig> =
+    Algolen['methods'][TSignature]['returns']
 
 /**
  * A factory for available 'create' calls
@@ -312,8 +401,8 @@ export type AlgolenCreateCalls = (typeof AlgolenCallFactory)['create']
 /**
  * Defines supported create methods for this smart contract
  */
-export type AlgolenCreateCallParams =
-  | (TypedCallParams<undefined> & (OnCompleteNoOp))
+export type AlgolenCreateCallParams = TypedCallParams<undefined> &
+    OnCompleteNoOp
 /**
  * A factory for available 'update' calls
  */
@@ -321,8 +410,7 @@ export type AlgolenUpdateCalls = (typeof AlgolenCallFactory)['update']
 /**
  * Defines supported update methods for this smart contract
  */
-export type AlgolenUpdateCallParams =
-  | TypedCallParams<undefined>
+export type AlgolenUpdateCallParams = TypedCallParams<undefined>
 /**
  * A factory for available 'delete' calls
  */
@@ -330,124 +418,150 @@ export type AlgolenDeleteCalls = (typeof AlgolenCallFactory)['delete']
 /**
  * Defines supported delete methods for this smart contract
  */
-export type AlgolenDeleteCallParams =
-  | TypedCallParams<undefined>
+export type AlgolenDeleteCallParams = TypedCallParams<undefined>
 /**
  * Defines arguments required for the deploy method.
  */
 export type AlgolenDeployArgs = {
-  deployTimeParams?: TealTemplateParams
-  /**
-   * A delegate which takes a create call factory and returns the create call params for this smart contract
-   */
-  createCall?: (callFactory: AlgolenCreateCalls) => AlgolenCreateCallParams
-  /**
-   * A delegate which takes a update call factory and returns the update call params for this smart contract
-   */
-  updateCall?: (callFactory: AlgolenUpdateCalls) => AlgolenUpdateCallParams
-  /**
-   * A delegate which takes a delete call factory and returns the delete call params for this smart contract
-   */
-  deleteCall?: (callFactory: AlgolenDeleteCalls) => AlgolenDeleteCallParams
+    deployTimeParams?: TealTemplateParams
+    /**
+     * A delegate which takes a create call factory and returns the create call params for this smart contract
+     */
+    createCall?: (callFactory: AlgolenCreateCalls) => AlgolenCreateCallParams
+    /**
+     * A delegate which takes a update call factory and returns the update call params for this smart contract
+     */
+    updateCall?: (callFactory: AlgolenUpdateCalls) => AlgolenUpdateCallParams
+    /**
+     * A delegate which takes a delete call factory and returns the delete call params for this smart contract
+     */
+    deleteCall?: (callFactory: AlgolenDeleteCalls) => AlgolenDeleteCallParams
 }
-
 
 /**
  * Exposes methods for constructing all available smart contract calls
  */
 export abstract class AlgolenCallFactory {
-  /**
-   * Gets available create call factories
-   */
-  static get create() {
-    return {
-      /**
-       * Constructs a create call for the algolen smart contract using a bare call
-       *
-       * @param params Any parameters for the call
-       * @returns A TypedCallParams object for the call
-       */
-      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams & (OnCompleteNoOp) = {}) {
+    /**
+     * Gets available create call factories
+     */
+    static get create() {
         return {
-          method: undefined,
-          methodArgs: undefined,
-          ...params,
+            /**
+             * Constructs a create call for the algolen smart contract using a bare call
+             *
+             * @param params Any parameters for the call
+             * @returns A TypedCallParams object for the call
+             */
+            bare(
+                params: BareCallArgs &
+                    AppClientCallCoreParams &
+                    CoreAppCallArgs &
+                    AppClientCompilationParams &
+                    OnCompleteNoOp = {}
+            ) {
+                return {
+                    method: undefined,
+                    methodArgs: undefined,
+                    ...params,
+                }
+            },
         }
-      },
     }
-  }
 
-  /**
-   * Gets available update call factories
-   */
-  static get update() {
-    return {
-      /**
-       * Constructs an update call for the algolen smart contract using a bare call
-       *
-       * @param params Any parameters for the call
-       * @returns A TypedCallParams object for the call
-       */
-      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs & AppClientCompilationParams = {}) {
+    /**
+     * Gets available update call factories
+     */
+    static get update() {
         return {
-          method: undefined,
-          methodArgs: undefined,
-          ...params,
+            /**
+             * Constructs an update call for the algolen smart contract using a bare call
+             *
+             * @param params Any parameters for the call
+             * @returns A TypedCallParams object for the call
+             */
+            bare(
+                params: BareCallArgs &
+                    AppClientCallCoreParams &
+                    CoreAppCallArgs &
+                    AppClientCompilationParams = {}
+            ) {
+                return {
+                    method: undefined,
+                    methodArgs: undefined,
+                    ...params,
+                }
+            },
         }
-      },
     }
-  }
 
-  /**
-   * Gets available delete call factories
-   */
-  static get delete() {
-    return {
-      /**
-       * Constructs a delete call for the algolen smart contract using a bare call
-       *
-       * @param params Any parameters for the call
-       * @returns A TypedCallParams object for the call
-       */
-      bare(params: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {
+    /**
+     * Gets available delete call factories
+     */
+    static get delete() {
         return {
-          method: undefined,
-          methodArgs: undefined,
-          ...params,
+            /**
+             * Constructs a delete call for the algolen smart contract using a bare call
+             *
+             * @param params Any parameters for the call
+             * @returns A TypedCallParams object for the call
+             */
+            bare(
+                params: BareCallArgs &
+                    AppClientCallCoreParams &
+                    CoreAppCallArgs = {}
+            ) {
+                return {
+                    method: undefined,
+                    methodArgs: undefined,
+                    ...params,
+                }
+            },
         }
-      },
     }
-  }
 
-  /**
-   * Constructs a no op call for the list_nft(axfer,uint64,uint64,uint64)bool ABI method
-   *
-   * @param args Any args for the contract call
-   * @param params Any additional parameters for the call
-   * @returns A TypedCallParams object for the call
-   */
-  static listNft(args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'list_nft(axfer,uint64,uint64,uint64)bool' as const,
-      methodArgs: Array.isArray(args) ? args : [args.asset_transfer_txn, args.deposit, args.price_per_day, args.max_duration_in_days],
-      ...params,
+    /**
+     * Constructs a no op call for the list_nft(axfer,uint64,uint64,uint64)bool ABI method
+     *
+     * @param args Any args for the contract call
+     * @param params Any additional parameters for the call
+     * @returns A TypedCallParams object for the call
+     */
+    static listNft(
+        args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'list_nft(axfer,uint64,uint64,uint64)bool' as const,
+            methodArgs: Array.isArray(args)
+                ? args
+                : [
+                      args.asset_transfer_txn,
+                      args.deposit,
+                      args.price_per_day,
+                      args.max_duration_in_days,
+                  ],
+            ...params,
+        }
     }
-  }
-  /**
-   * Constructs a no op call for the delist_nft(pay)bool ABI method
-   *
-   * @param args Any args for the contract call
-   * @param params Any additional parameters for the call
-   * @returns A TypedCallParams object for the call
-   */
-  static delistNft(args: MethodArgs<'delist_nft(pay)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'delist_nft(pay)bool' as const,
-      methodArgs: Array.isArray(args) ? args : [args.fee_payment_txn],
-      ...params,
+    /**
+     * Constructs a no op call for the delist_nft(pay)bool ABI method
+     *
+     * @param args Any args for the contract call
+     * @param params Any additional parameters for the call
+     * @returns A TypedCallParams object for the call
+     */
+    static delistNft(
+        args: MethodArgs<'delist_nft(pay)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'delist_nft(pay)bool' as const,
+            methodArgs: Array.isArray(args) ? args : [args.fee_payment_txn],
+            ...params,
+        }
     }
-  }
-  /**
+    /**
    * Constructs a no op call for the opt_in_to_asset(pay)bool ABI method
    *
    * An opt-in contract method
@@ -457,216 +571,278 @@ One time payment of LISTING_FEE_MICROALGO amount covers opt in, box creation for
    * @param params Any additional parameters for the call
    * @returns A TypedCallParams object for the call
    */
-  static optInToAsset(args: MethodArgs<'opt_in_to_asset(pay)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'opt_in_to_asset(pay)bool' as const,
-      methodArgs: Array.isArray(args) ? args : [args.deposit_payment_txn],
-      ...params,
+    static optInToAsset(
+        args: MethodArgs<'opt_in_to_asset(pay)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'opt_in_to_asset(pay)bool' as const,
+            methodArgs: Array.isArray(args) ? args : [args.deposit_payment_txn],
+            ...params,
+        }
     }
-  }
-  /**
-   * Constructs a no op call for the rent_nft(pay,uint64)bool ABI method
-   *
-   * @param args Any args for the contract call
-   * @param params Any additional parameters for the call
-   * @returns A TypedCallParams object for the call
-   */
-  static rentNft(args: MethodArgs<'rent_nft(pay,uint64)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'rent_nft(pay,uint64)bool' as const,
-      methodArgs: Array.isArray(args) ? args : [args.payment_txn, args.duration_in_days],
-      ...params,
+    /**
+     * Constructs a no op call for the rent_nft(pay,uint64)bool ABI method
+     *
+     * @param args Any args for the contract call
+     * @param params Any additional parameters for the call
+     * @returns A TypedCallParams object for the call
+     */
+    static rentNft(
+        args: MethodArgs<'rent_nft(pay,uint64)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'rent_nft(pay,uint64)bool' as const,
+            methodArgs: Array.isArray(args)
+                ? args
+                : [args.payment_txn, args.duration_in_days],
+            ...params,
+        }
     }
-  }
-  /**
-   * Constructs a no op call for the return_nft(axfer)bool ABI method
-   *
-   * @param args Any args for the contract call
-   * @param params Any additional parameters for the call
-   * @returns A TypedCallParams object for the call
-   */
-  static returnNft(args: MethodArgs<'return_nft(axfer)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'return_nft(axfer)bool' as const,
-      methodArgs: Array.isArray(args) ? args : [args.asset_transfer_txn],
-      ...params,
+    /**
+     * Constructs a no op call for the return_nft(axfer)bool ABI method
+     *
+     * @param args Any args for the contract call
+     * @param params Any additional parameters for the call
+     * @returns A TypedCallParams object for the call
+     */
+    static returnNft(
+        args: MethodArgs<'return_nft(axfer)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'return_nft(axfer)bool' as const,
+            methodArgs: Array.isArray(args) ? args : [args.asset_transfer_txn],
+            ...params,
+        }
     }
-  }
-  /**
-   * Constructs a no op call for the claim_deposit()bool ABI method
-   *
-   * @param args Any args for the contract call
-   * @param params Any additional parameters for the call
-   * @returns A TypedCallParams object for the call
-   */
-  static claimDeposit(args: MethodArgs<'claim_deposit()bool'>, params: AppClientCallCoreParams & CoreAppCallArgs) {
-    return {
-      method: 'claim_deposit()bool' as const,
-      methodArgs: Array.isArray(args) ? args : [],
-      ...params,
+    /**
+     * Constructs a no op call for the claim_deposit()bool ABI method
+     *
+     * @param args Any args for the contract call
+     * @param params Any additional parameters for the call
+     * @returns A TypedCallParams object for the call
+     */
+    static claimDeposit(
+        args: MethodArgs<'claim_deposit()bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs
+    ) {
+        return {
+            method: 'claim_deposit()bool' as const,
+            methodArgs: Array.isArray(args) ? args : [],
+            ...params,
+        }
     }
-  }
 }
 
 /**
  * A client to make calls to the algolen smart contract
  */
 export class AlgolenClient {
-  /**
-   * The underlying `ApplicationClient` for when you want to have more flexibility
-   */
-  public readonly appClient: ApplicationClient
+    /**
+     * The underlying `ApplicationClient` for when you want to have more flexibility
+     */
+    public readonly appClient: ApplicationClient
 
-  private readonly sender: SendTransactionFrom | undefined
+    private readonly sender: SendTransactionFrom | undefined
 
-  /**
-   * Creates a new instance of `AlgolenClient`
-   *
-   * @param appDetails appDetails The details to identify the app to deploy
-   * @param algod An algod client instance
-   */
-  constructor(appDetails: AppDetails, private algod: Algodv2) {
-    this.sender = appDetails.sender
-    this.appClient = algokit.getAppClient({
-      ...appDetails,
-      app: APP_SPEC
-    }, algod)
-  }
-
-  /**
-   * Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type
-   *
-   * @param result The AppCallTransactionResult to be mapped
-   * @param returnValueFormatter An optional delegate to format the return value if required
-   * @returns The smart contract response with an updated return value
-   */
-  protected mapReturnValue<TReturn>(result: AppCallTransactionResult, returnValueFormatter?: (value: any) => TReturn): AppCallTransactionResultOfType<TReturn> {
-    if(result.return?.decodeError) {
-      throw result.return.decodeError
+    /**
+     * Creates a new instance of `AlgolenClient`
+     *
+     * @param appDetails appDetails The details to identify the app to deploy
+     * @param algod An algod client instance
+     */
+    constructor(
+        appDetails: AppDetails,
+        private algod: Algodv2
+    ) {
+        this.sender = appDetails.sender
+        this.appClient = algokit.getAppClient(
+            {
+                ...appDetails,
+                app: APP_SPEC,
+            },
+            algod
+        )
     }
-    const returnValue = result.return?.returnValue !== undefined && returnValueFormatter !== undefined
-      ? returnValueFormatter(result.return.returnValue)
-      : result.return?.returnValue as TReturn | undefined
-      return { ...result, return: returnValue }
-  }
 
-  /**
-   * Calls the ABI method with the matching signature using an onCompletion code of NO_OP
-   *
-   * @param typedCallParams An object containing the method signature, args, and any other relevant parameters
-   * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
-   * @returns The result of the smart contract call
-   */
-  public async call<TSignature extends keyof Algolen['methods']>(typedCallParams: TypedCallParams<TSignature>, returnValueFormatter?: (value: any) => MethodReturn<TSignature>) {
-    return this.mapReturnValue<MethodReturn<TSignature>>(await this.appClient.call(typedCallParams), returnValueFormatter)
-  }
-
-  /**
-   * Idempotently deploys the algolen smart contract.
-   *
-   * @param params The arguments for the contract calls and any additional parameters for the call
-   * @returns The deployment result
-   */
-  public deploy(params: AlgolenDeployArgs & AppClientDeployCoreParams = {}): ReturnType<ApplicationClient['deploy']> {
-    const createArgs = params.createCall?.(AlgolenCallFactory.create)
-    const updateArgs = params.updateCall?.(AlgolenCallFactory.update)
-    const deleteArgs = params.deleteCall?.(AlgolenCallFactory.delete)
-    return this.appClient.deploy({
-      ...params,
-      updateArgs,
-      deleteArgs,
-      createArgs,
-      createOnCompleteAction: createArgs?.onCompleteAction,
-    })
-  }
-
-  /**
-   * Gets available create methods
-   */
-  public get create() {
-    const $this = this
-    return {
-      /**
-       * Creates a new instance of the algolen smart contract using a bare call.
-       *
-       * @param args The arguments for the bare call
-       * @returns The create result
-       */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs & (OnCompleteNoOp) = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.create(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
-      },
+    /**
+     * Checks for decode errors on the AppCallTransactionResult and maps the return value to the specified generic type
+     *
+     * @param result The AppCallTransactionResult to be mapped
+     * @param returnValueFormatter An optional delegate to format the return value if required
+     * @returns The smart contract response with an updated return value
+     */
+    protected mapReturnValue<TReturn>(
+        result: AppCallTransactionResult,
+        returnValueFormatter?: (value: any) => TReturn
+    ): AppCallTransactionResultOfType<TReturn> {
+        if (result.return?.decodeError) {
+            throw result.return.decodeError
+        }
+        const returnValue =
+            result.return?.returnValue !== undefined &&
+            returnValueFormatter !== undefined
+                ? returnValueFormatter(result.return.returnValue)
+                : (result.return?.returnValue as TReturn | undefined)
+        return { ...result, return: returnValue }
     }
-  }
 
-  /**
-   * Gets available update methods
-   */
-  public get update() {
-    const $this = this
-    return {
-      /**
-       * Updates an existing instance of the algolen smart contract using a bare call.
-       *
-       * @param args The arguments for the bare call
-       * @returns The update result
-       */
-      bare(args: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.update(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
-      },
+    /**
+     * Calls the ABI method with the matching signature using an onCompletion code of NO_OP
+     *
+     * @param typedCallParams An object containing the method signature, args, and any other relevant parameters
+     * @param returnValueFormatter An optional delegate which when provided will be used to map non-undefined return values to the target type
+     * @returns The result of the smart contract call
+     */
+    public async call<TSignature extends keyof Algolen['methods']>(
+        typedCallParams: TypedCallParams<TSignature>,
+        returnValueFormatter?: (value: any) => MethodReturn<TSignature>
+    ) {
+        return this.mapReturnValue<MethodReturn<TSignature>>(
+            await this.appClient.call(typedCallParams),
+            returnValueFormatter
+        )
     }
-  }
 
-  /**
-   * Gets available delete methods
-   */
-  public get delete() {
-    const $this = this
-    return {
-      /**
-       * Deletes an existing instance of the algolen smart contract using a bare call.
-       *
-       * @param args The arguments for the bare call
-       * @returns The delete result
-       */
-      bare(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}): Promise<AppCallTransactionResultOfType<undefined>> {
-        return $this.appClient.delete(args) as unknown as Promise<AppCallTransactionResultOfType<undefined>>
-      },
+    /**
+     * Idempotently deploys the algolen smart contract.
+     *
+     * @param params The arguments for the contract calls and any additional parameters for the call
+     * @returns The deployment result
+     */
+    public deploy(
+        params: AlgolenDeployArgs & AppClientDeployCoreParams = {}
+    ): ReturnType<ApplicationClient['deploy']> {
+        const createArgs = params.createCall?.(AlgolenCallFactory.create)
+        const updateArgs = params.updateCall?.(AlgolenCallFactory.update)
+        const deleteArgs = params.deleteCall?.(AlgolenCallFactory.delete)
+        return this.appClient.deploy({
+            ...params,
+            updateArgs,
+            deleteArgs,
+            createArgs,
+            createOnCompleteAction: createArgs?.onCompleteAction,
+        })
     }
-  }
 
-  /**
-   * Makes a clear_state call to an existing instance of the algolen smart contract.
-   *
-   * @param args The arguments for the bare call
-   * @returns The clear_state result
-   */
-  public clearState(args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.appClient.clearState(args)
-  }
+    /**
+     * Gets available create methods
+     */
+    public get create() {
+        const $this = this
+        return {
+            /**
+             * Creates a new instance of the algolen smart contract using a bare call.
+             *
+             * @param args The arguments for the bare call
+             * @returns The create result
+             */
+            bare(
+                args: BareCallArgs &
+                    AppClientCallCoreParams &
+                    AppClientCompilationParams &
+                    CoreAppCallArgs &
+                    OnCompleteNoOp = {}
+            ): Promise<AppCallTransactionResultOfType<undefined>> {
+                return $this.appClient.create(args) as unknown as Promise<
+                    AppCallTransactionResultOfType<undefined>
+                >
+            },
+        }
+    }
 
-  /**
-   * Calls the list_nft(axfer,uint64,uint64,uint64)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The result of the call
-   */
-  public listNft(args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.listNft(args, params))
-  }
+    /**
+     * Gets available update methods
+     */
+    public get update() {
+        const $this = this
+        return {
+            /**
+             * Updates an existing instance of the algolen smart contract using a bare call.
+             *
+             * @param args The arguments for the bare call
+             * @returns The update result
+             */
+            bare(
+                args: BareCallArgs &
+                    AppClientCallCoreParams &
+                    AppClientCompilationParams &
+                    CoreAppCallArgs = {}
+            ): Promise<AppCallTransactionResultOfType<undefined>> {
+                return $this.appClient.update(args) as unknown as Promise<
+                    AppCallTransactionResultOfType<undefined>
+                >
+            },
+        }
+    }
 
-  /**
-   * Calls the delist_nft(pay)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The result of the call
-   */
-  public delistNft(args: MethodArgs<'delist_nft(pay)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.delistNft(args, params))
-  }
+    /**
+     * Gets available delete methods
+     */
+    public get delete() {
+        const $this = this
+        return {
+            /**
+             * Deletes an existing instance of the algolen smart contract using a bare call.
+             *
+             * @param args The arguments for the bare call
+             * @returns The delete result
+             */
+            bare(
+                args: BareCallArgs &
+                    AppClientCallCoreParams &
+                    CoreAppCallArgs = {}
+            ): Promise<AppCallTransactionResultOfType<undefined>> {
+                return $this.appClient.delete(args) as unknown as Promise<
+                    AppCallTransactionResultOfType<undefined>
+                >
+            },
+        }
+    }
 
-  /**
+    /**
+     * Makes a clear_state call to an existing instance of the algolen smart contract.
+     *
+     * @param args The arguments for the bare call
+     * @returns The clear_state result
+     */
+    public clearState(
+        args: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.appClient.clearState(args)
+    }
+
+    /**
+     * Calls the list_nft(axfer,uint64,uint64,uint64)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The result of the call
+     */
+    public listNft(
+        args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.listNft(args, params))
+    }
+
+    /**
+     * Calls the delist_nft(pay)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The result of the call
+     */
+    public delistNft(
+        args: MethodArgs<'delist_nft(pay)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.delistNft(args, params))
+    }
+
+    /**
    * Calls the opt_in_to_asset(pay)bool ABI method.
    *
    * An opt-in contract method
@@ -676,143 +852,294 @@ One time payment of LISTING_FEE_MICROALGO amount covers opt in, box creation for
    * @param params Any additional parameters for the call
    * @returns The result of the call
    */
-  public optInToAsset(args: MethodArgs<'opt_in_to_asset(pay)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.optInToAsset(args, params))
-  }
+    public optInToAsset(
+        args: MethodArgs<'opt_in_to_asset(pay)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.optInToAsset(args, params))
+    }
 
-  /**
-   * Calls the rent_nft(pay,uint64)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The result of the call
-   */
-  public rentNft(args: MethodArgs<'rent_nft(pay,uint64)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.rentNft(args, params))
-  }
+    /**
+     * Calls the rent_nft(pay,uint64)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The result of the call
+     */
+    public rentNft(
+        args: MethodArgs<'rent_nft(pay,uint64)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.rentNft(args, params))
+    }
 
-  /**
-   * Calls the return_nft(axfer)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The result of the call
-   */
-  public returnNft(args: MethodArgs<'return_nft(axfer)bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.returnNft(args, params))
-  }
+    /**
+     * Calls the return_nft(axfer)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The result of the call
+     */
+    public returnNft(
+        args: MethodArgs<'return_nft(axfer)bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.returnNft(args, params))
+    }
 
-  /**
-   * Calls the claim_deposit()bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The result of the call
-   */
-  public claimDeposit(args: MethodArgs<'claim_deposit()bool'>, params: AppClientCallCoreParams & CoreAppCallArgs = {}) {
-    return this.call(AlgolenCallFactory.claimDeposit(args, params))
-  }
+    /**
+     * Calls the claim_deposit()bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The result of the call
+     */
+    public claimDeposit(
+        args: MethodArgs<'claim_deposit()bool'>,
+        params: AppClientCallCoreParams & CoreAppCallArgs = {}
+    ) {
+        return this.call(AlgolenCallFactory.claimDeposit(args, params))
+    }
 
-  public compose(): AlgolenComposer {
-    const client = this
-    const atc = new AtomicTransactionComposer()
-    let promiseChain:Promise<unknown> = Promise.resolve()
-    const resultMappers: Array<undefined | ((x: any) => any)> = []
-    return {
-      listNft(args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.listNft(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      delistNft(args: MethodArgs<'delist_nft(pay)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.delistNft(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      optInToAsset(args: MethodArgs<'opt_in_to_asset(pay)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.optInToAsset(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      rentNft(args: MethodArgs<'rent_nft(pay,uint64)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.rentNft(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      returnNft(args: MethodArgs<'return_nft(axfer)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.returnNft(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      claimDeposit(args: MethodArgs<'claim_deposit()bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.claimDeposit(args, {...params, sendParams: {...params?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      get update() {
-        const $this = this
+    public compose(): AlgolenComposer {
+        const client = this
+        const atc = new AtomicTransactionComposer()
+        let promiseChain: Promise<unknown> = Promise.resolve()
+        const resultMappers: Array<undefined | ((x: any) => any)> = []
         return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs) {
-            promiseChain = promiseChain.then(() => client.update.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
-            resultMappers.push(undefined)
-            return $this
-          },
-        }
-      },
-      get delete() {
-        const $this = this
-        return {
-          bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
-            promiseChain = promiseChain.then(() => client.delete.bare({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
-            resultMappers.push(undefined)
-            return $this
-          },
-        }
-      },
-      clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs) {
-        promiseChain = promiseChain.then(() => client.clearState({...args, sendParams: {...args?.sendParams, skipSending: true, atc}}))
-        resultMappers.push(undefined)
-        return this
-      },
-      addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom) {
-        promiseChain = promiseChain.then(async () => atc.addTransaction(await algokit.getTransactionWithSigner(txn, defaultSender ?? client.sender)))
-        return this
-      },
-      async atc() {
-        await promiseChain
-        return atc
-      },
-      async execute() {
-        await promiseChain
-        const result = await algokit.sendAtomicTransactionComposer({ atc, sendParams: {} }, client.algod)
-        return {
-          ...result,
-          returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val.returnValue) : val.returnValue)
-        }
-      }
-    } as unknown as AlgolenComposer
-  }
+            listNft(
+                args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.listNft(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            delistNft(
+                args: MethodArgs<'delist_nft(pay)bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.delistNft(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            optInToAsset(
+                args: MethodArgs<'opt_in_to_asset(pay)bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.optInToAsset(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            rentNft(
+                args: MethodArgs<'rent_nft(pay,uint64)bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.rentNft(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            returnNft(
+                args: MethodArgs<'return_nft(axfer)bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.returnNft(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            claimDeposit(
+                args: MethodArgs<'claim_deposit()bool'>,
+                params?: AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.claimDeposit(args, {
+                        ...params,
+                        sendParams: {
+                            ...params?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            get update() {
+                const $this = this
+                return {
+                    bare(
+                        args?: BareCallArgs &
+                            AppClientCallCoreParams &
+                            AppClientCompilationParams &
+                            CoreAppCallArgs
+                    ) {
+                        promiseChain = promiseChain.then(() =>
+                            client.update.bare({
+                                ...args,
+                                sendParams: {
+                                    ...args?.sendParams,
+                                    skipSending: true,
+                                    atc,
+                                },
+                            })
+                        )
+                        resultMappers.push(undefined)
+                        return $this
+                    },
+                }
+            },
+            get delete() {
+                const $this = this
+                return {
+                    bare(
+                        args?: BareCallArgs &
+                            AppClientCallCoreParams &
+                            CoreAppCallArgs
+                    ) {
+                        promiseChain = promiseChain.then(() =>
+                            client.delete.bare({
+                                ...args,
+                                sendParams: {
+                                    ...args?.sendParams,
+                                    skipSending: true,
+                                    atc,
+                                },
+                            })
+                        )
+                        resultMappers.push(undefined)
+                        return $this
+                    },
+                }
+            },
+            clearState(
+                args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs
+            ) {
+                promiseChain = promiseChain.then(() =>
+                    client.clearState({
+                        ...args,
+                        sendParams: {
+                            ...args?.sendParams,
+                            skipSending: true,
+                            atc,
+                        },
+                    })
+                )
+                resultMappers.push(undefined)
+                return this
+            },
+            addTransaction(
+                txn:
+                    | TransactionWithSigner
+                    | TransactionToSign
+                    | Transaction
+                    | Promise<SendTransactionResult>,
+                defaultSender?: SendTransactionFrom
+            ) {
+                promiseChain = promiseChain.then(async () =>
+                    atc.addTransaction(
+                        await algokit.getTransactionWithSigner(
+                            txn,
+                            defaultSender ?? client.sender
+                        )
+                    )
+                )
+                return this
+            },
+            async atc() {
+                await promiseChain
+                return atc
+            },
+            async execute() {
+                await promiseChain
+                const result = await algokit.sendAtomicTransactionComposer(
+                    { atc, sendParams: {} },
+                    client.algod
+                )
+                return {
+                    ...result,
+                    returns: result.returns?.map((val, i) =>
+                        resultMappers[i] !== undefined
+                            ? resultMappers[i]!(val.returnValue)
+                            : val.returnValue
+                    ),
+                }
+            },
+        } as unknown as AlgolenComposer
+    }
 }
 export type AlgolenComposer<TReturns extends [...any[]] = []> = {
-  /**
-   * Calls the list_nft(axfer,uint64,uint64,uint64)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  listNft(args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'list_nft(axfer,uint64,uint64,uint64)bool'>]>
+    /**
+     * Calls the list_nft(axfer,uint64,uint64,uint64)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    listNft(
+        args: MethodArgs<'list_nft(axfer,uint64,uint64,uint64)bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<
+        [...TReturns, MethodReturn<'list_nft(axfer,uint64,uint64,uint64)bool'>]
+    >
 
-  /**
-   * Calls the delist_nft(pay)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  delistNft(args: MethodArgs<'delist_nft(pay)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'delist_nft(pay)bool'>]>
+    /**
+     * Calls the delist_nft(pay)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    delistNft(
+        args: MethodArgs<'delist_nft(pay)bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, MethodReturn<'delist_nft(pay)bool'>]>
 
-  /**
+    /**
    * Calls the opt_in_to_asset(pay)bool ABI method.
    *
    * An opt-in contract method
@@ -822,88 +1149,116 @@ One time payment of LISTING_FEE_MICROALGO amount covers opt in, box creation for
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  optInToAsset(args: MethodArgs<'opt_in_to_asset(pay)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'opt_in_to_asset(pay)bool'>]>
+    optInToAsset(
+        args: MethodArgs<'opt_in_to_asset(pay)bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, MethodReturn<'opt_in_to_asset(pay)bool'>]>
 
-  /**
-   * Calls the rent_nft(pay,uint64)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  rentNft(args: MethodArgs<'rent_nft(pay,uint64)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'rent_nft(pay,uint64)bool'>]>
-
-  /**
-   * Calls the return_nft(axfer)bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  returnNft(args: MethodArgs<'return_nft(axfer)bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'return_nft(axfer)bool'>]>
-
-  /**
-   * Calls the claim_deposit()bool ABI method.
-   *
-   * @param args The arguments for the contract call
-   * @param params Any additional parameters for the call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  claimDeposit(args: MethodArgs<'claim_deposit()bool'>, params?: AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, MethodReturn<'claim_deposit()bool'>]>
-
-  /**
-   * Gets available update methods
-   */
-  readonly update: {
     /**
-     * Updates an existing instance of the algolen smart contract using a bare call.
+     * Calls the rent_nft(pay,uint64)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    rentNft(
+        args: MethodArgs<'rent_nft(pay,uint64)bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, MethodReturn<'rent_nft(pay,uint64)bool'>]>
+
+    /**
+     * Calls the return_nft(axfer)bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    returnNft(
+        args: MethodArgs<'return_nft(axfer)bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, MethodReturn<'return_nft(axfer)bool'>]>
+
+    /**
+     * Calls the claim_deposit()bool ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    claimDeposit(
+        args: MethodArgs<'claim_deposit()bool'>,
+        params?: AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, MethodReturn<'claim_deposit()bool'>]>
+
+    /**
+     * Gets available update methods
+     */
+    readonly update: {
+        /**
+         * Updates an existing instance of the algolen smart contract using a bare call.
+         *
+         * @param args The arguments for the bare call
+         * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+         */
+        bare(
+            args?: BareCallArgs &
+                AppClientCallCoreParams &
+                AppClientCompilationParams &
+                CoreAppCallArgs
+        ): AlgolenComposer<[...TReturns, undefined]>
+    }
+
+    /**
+     * Gets available delete methods
+     */
+    readonly delete: {
+        /**
+         * Deletes an existing instance of the algolen smart contract using a bare call.
+         *
+         * @param args The arguments for the bare call
+         * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+         */
+        bare(
+            args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs
+        ): AlgolenComposer<[...TReturns, undefined]>
+    }
+
+    /**
+     * Makes a clear_state call to an existing instance of the algolen smart contract.
      *
      * @param args The arguments for the bare call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & AppClientCompilationParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, undefined]>
-  }
+    clearState(
+        args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs
+    ): AlgolenComposer<[...TReturns, undefined]>
 
-  /**
-   * Gets available delete methods
-   */
-  readonly delete: {
     /**
-     * Deletes an existing instance of the algolen smart contract using a bare call.
+     * Adds a transaction to the composer
      *
-     * @param args The arguments for the bare call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     * @param txn One of: A TransactionWithSigner object (returned as is), a TransactionToSign object (signer is obtained from the signer property), a Transaction object (signer is extracted from the defaultSender parameter), an async SendTransactionResult returned by one of algokit utils helpers (signer is obtained from the defaultSender parameter)
+     * @param defaultSender The default sender to be used to obtain a signer where the object provided to the transaction parameter does not include a signer.
      */
-    bare(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, undefined]>
-  }
-
-  /**
-   * Makes a clear_state call to an existing instance of the algolen smart contract.
-   *
-   * @param args The arguments for the bare call
-   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-   */
-  clearState(args?: BareCallArgs & AppClientCallCoreParams & CoreAppCallArgs): AlgolenComposer<[...TReturns, undefined]>
-
-  /**
-   * Adds a transaction to the composer
-   *
-   * @param txn One of: A TransactionWithSigner object (returned as is), a TransactionToSign object (signer is obtained from the signer property), a Transaction object (signer is extracted from the defaultSender parameter), an async SendTransactionResult returned by one of algokit utils helpers (signer is obtained from the defaultSender parameter)
-   * @param defaultSender The default sender to be used to obtain a signer where the object provided to the transaction parameter does not include a signer.
-   */
-  addTransaction(txn: TransactionWithSigner | TransactionToSign | Transaction | Promise<SendTransactionResult>, defaultSender?: SendTransactionFrom): AlgolenComposer<TReturns>
-  /**
-   * Returns the underlying AtomicTransactionComposer instance
-   */
-  atc(): Promise<AtomicTransactionComposer>
-  /**
-   * Executes the transaction group and returns an array of results
-   */
-  execute(): Promise<AlgolenComposerResults<TReturns>>
+    addTransaction(
+        txn:
+            | TransactionWithSigner
+            | TransactionToSign
+            | Transaction
+            | Promise<SendTransactionResult>,
+        defaultSender?: SendTransactionFrom
+    ): AlgolenComposer<TReturns>
+    /**
+     * Returns the underlying AtomicTransactionComposer instance
+     */
+    atc(): Promise<AtomicTransactionComposer>
+    /**
+     * Executes the transaction group and returns an array of results
+     */
+    execute(): Promise<AlgolenComposerResults<TReturns>>
 }
 export type AlgolenComposerResults<TReturns extends [...any[]]> = {
-  returns: TReturns
-  groupId: string
-  txIds: string[]
-  transactions: Transaction[]
+    returns: TReturns
+    groupId: string
+    txIds: string[]
+    transactions: Transaction[]
 }
