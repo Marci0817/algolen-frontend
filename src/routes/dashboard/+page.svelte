@@ -35,12 +35,12 @@
       decimals: 0,
       defaultFrozen: false,
       unitName: 'TSTNFT',
-      assetName: "TestNFTAlgolen",
+      assetName: "Algolen Test NFT #" + Math.floor((Math.random() * 1_000_000) + 1),
       manager: walletAddress.getValue(),
       reserve: walletAddress.getValue(),
       freeze: walletAddress.getValue(),
       clawback: walletAddress.getValue(),
-      assetURL: 'https://th.bing.com/th/id/OIP.Dx4pFHVjVc5WysKYDp-3mQHaEP?pid=ImgDet&rs=1',
+      assetURL: 'https://algolen-frontend.vercel.app/testnft.png',
   })
     const stxn = await walletAddress.signer([txn]);
     let txid = await algod.sendRawTransaction(stxn[0]).do()

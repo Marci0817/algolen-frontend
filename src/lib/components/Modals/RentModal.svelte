@@ -60,7 +60,7 @@
   </button>
   <div class="flex flex-col">
     <div class="flex md:flex-row flex-col items-center md:items-start">
-      <img src={listing.url} alt={listing.name} class="w-48 rounded-lg" />
+      <img src={listing.url} alt={listing.name} class="h-48 w-48 rounded-lg" />
       <div class="mx-0 md:mx-6 w-full md:w-auto mt-4 md:mt-0 max-w-md">
         <p class="text-2xl font-bold">{listing.name}</p>
         <div class=" max-w-xs">
