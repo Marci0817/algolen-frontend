@@ -7,7 +7,7 @@ export default defineConfig({
     global: {},
     plugins: [sveltekit()],
     ssr: {
-        noExternal: ['@algorandfoundation/algokit-utils'],
+        noExternal: ['@algorandfoundation/algokit-utils', 'algosdk'],
     },
     optimizeDeps: {
         //For the wallets
