@@ -1,7 +1,6 @@
 <!-- VerticalRentCard.svelte -->
 <script lang="ts">
     import Button from '../shared/Button.svelte'
-    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
     enum Status {
         RENTED = 'Rented',
@@ -47,7 +46,7 @@
         <figure class="">
             <img
                 src={data.url}
-                alt={PlaceholderNFT}
+                alt={"Not found"}
                 class="h-auto w-16 object-cover rounded-xl"
             />
         </figure>

@@ -6,7 +6,6 @@
     import { env } from '$env/dynamic/public'
     import { walletAddress } from '$lib/stores/walletStore'
     import { AlgolenClient } from '$lib/utils/AlgolenClient'
-    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
     export let data = {
         asset_id: 'Loading...',
@@ -60,7 +59,7 @@
         <figure class="">
             <img
                 src={data.url}
-                alt={PlaceholderNFT}
+                alt={"Not found"}
                 class="h-auto w-16 object-cover rounded-xl"
             />
         </figure>

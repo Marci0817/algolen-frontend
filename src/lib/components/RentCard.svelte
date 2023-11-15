@@ -3,7 +3,6 @@
     import { openRentModal } from './Modals/modal'
     import Button from './shared/Button.svelte'
     import { microAlgos } from '@algorandfoundation/algokit-utils'
-    import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
 
     export let data: AlgolenListing = {
         asset_id: 0,
@@ -26,7 +25,7 @@
     <figure class="">
         <img
             src={data.url}
-            alt={data.asset_id == 0 ? 'Loading...' : PlaceholderNFT}
+            alt={data.asset_id == 0 ? 'Loading...' : "Not found"}
             class="h-48 w-full rounded-t-lg"
         />
     </figure>
