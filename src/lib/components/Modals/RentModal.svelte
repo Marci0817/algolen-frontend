@@ -45,7 +45,7 @@
         if (!optedIn) {
             await client.optIntoAsset(listing.asset_id)
         }
-        await client.rentNFT(listing.asset_id, 1, listing.price_per_day)
+        await client.rentNFT(listing.asset_id, 1, listing.price_per_day, listing.owner)
     }
 </script>
 
