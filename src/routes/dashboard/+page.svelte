@@ -35,7 +35,7 @@
       decimals: 0,
       defaultFrozen: false,
       unitName: 'TSTNFT',
-      assetName: "TestNFTAlgolen",
+      assetName: "TestNFTAlgolen " + Math.floor((Math.random() * 1_000_000) + 1),
       manager: walletAddress.getValue(),
       reserve: walletAddress.getValue(),
       freeze: walletAddress.getValue(),
