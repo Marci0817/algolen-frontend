@@ -10,7 +10,7 @@
     import { transactionSignerAccount } from '@algorandfoundation/algokit-utils'
     import { microAlgos } from '@algorandfoundation/algokit-utils'
     import Button from '../shared/Button.svelte'
-
+    import { alerts } from '$lib/stores/alertStore'
 
     export let modalID
     export let listing: AlgolenListing
@@ -48,8 +48,23 @@
         if (!optedIn) {
             await client.optIntoAsset(listing.asset_id)
         }
-        await client.rentNFT(listing.asset_id, 1, listing.price_per_day, listing.owner)
+        alerts.add({
+            type: 'info',
+            title: 'Transaction sent for signing',
+            desc: 'Please check your wallet',
+        })
+        await client.rentNFT(
+            listing.asset_id,
+            1,
+            listing.price_per_day,
+            listing.owner
+        )
         modals.close(modalID)
+        alerts.add({
+            type: 'info',
+            title: 'Transaction submitted successfully',
+            desc: 'Waiting for confirmation',
+        })
     }
 </script>
 
@@ -73,11 +88,16 @@
                 <p class="text-2xl font-bold">{listing.name}</p>
                 <div class=" max-w-xs">
                     <p class="text-sm text-gray-400 break-words">
-                        <a target="_blank" href={`https://testnet.algoexplorer.io/address/${listing.owner}`}>{listing.owner}</a>                    </p>
+                        <a
+                            target="_blank"
+                            href={`https://testnet.algoexplorer.io/address/${listing.owner}`}
+                            >{listing.owner}</a
+                        >
+                    </p>
                 </div>
                 <div class="mt-2 gap-2 flex justify-between">
                     <div>
-                        <p class="text-gray-300 font-semibold">Price per day</p>
+                        <p class="text-gray-300 font-semibold">Price/Day</p>
                         <p>{microAlgos(listing.price_per_day).algos} ALGO</p>
                     </div>
                     <div>
@@ -111,7 +131,10 @@
                     max={listing.max_duration_in_days.toString()}
                     bind:value={day}
                 />
-                <div class="mt-2">Total rent cost: {listing.price_per_day*day/1000000+listing.deposit/1000000} ALGO + 0.004 ALGO fee</div>
+                <div class="mt-2">
+                    Total rent cost: {(listing.price_per_day * day) / 1000000 +
+                        listing.deposit / 1000000} ALGO + 0.004 ALGO fee
+                </div>
             </div>
             <div class="max-w-md text-sm text-gray-300 my-5">
                 By checking this box, you agree to our <a
@@ -130,11 +153,13 @@
                 </div>
                 <div class="">
                     <Button
-                    disabled={!isAccepted}
+                        disabled={!isAccepted}
                         onClick={rentFlow}
                         text="Rent"
-                        className={!isAccepted ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'}
-                        />
+                        className={!isAccepted
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'opacity-100 cursor-pointer'}
+                    />
                 </div>
             </div>
         </div>

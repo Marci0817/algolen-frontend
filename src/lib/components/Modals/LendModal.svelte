@@ -7,7 +7,7 @@
     import { modals } from './modal'
     import algosdk from 'algosdk'
     import Button from '../shared/Button.svelte'
-
+    import { alerts } from '$lib/stores/alertStore'
     const algod = new algosdk.Algodv2(
         env.PUBLIC_ALGOSDK_TOKEN || '',
         env.PUBLIC_ALGOSDK_SERVER,
@@ -21,8 +21,8 @@
 
     export let modalID
     export let nft: NFT
-    let isAccepted = false;
-    let currDays = 1;
+    let isAccepted = false
+    let currDays = 1
 
     async function lendFlow() {
         let signer = transactionSignerAccount(
@@ -40,49 +40,62 @@
         if (!optedIn) {
             await client.opt_in_to_asset(nft.asset_id)
         }
+        alerts.add({
+            type: 'info',
+            title: 'Transaction sent for signing',
+            desc: 'Please check your wallet',
+        })
         await client.listNft(nft.asset_id, 0, 0, 180)
         modals.close(modalID)
+        alerts.add({
+            type: 'info',
+            title: 'Your transaction is being processed',
+            desc: '',
+        })
     }
 </script>
 
-<div class="bg-gray-900 text-white border-2 drop-shadow-neonPrim border-prim font-primary rounded-2xl py-7 px-8 md:px-16">
-    <button
-    on:click={() => modals.close(modalID)}
-    class="absolute right-7 top-4 font-bold text-gray-200 text-lg"
+<div
+    class="bg-gray-900 text-white border-2 drop-shadow-neonPrim border-prim font-primary rounded-2xl py-7 px-8 md:px-16"
 >
-    x
+    <button
+        on:click={() => modals.close(modalID)}
+        class="absolute right-7 top-4 font-bold text-gray-200 text-lg"
+    >
+        x
     </button>
     <div class="flex flex-row gap-8">
         <div>
-            <img
-                src={nft.url}
-                alt={nft.name}
-                class="h-48 w-48 rounded-lg"
-            />
+            <img src={nft.url} alt={nft.name} class="h-48 w-48 rounded-lg" />
         </div>
         <div class="">
             <div class="text-2xl font-bold">{nft.name}</div>
             <div class=" max-w-xs">
-
-            <div class="text-sm text-gray-400 break-words"><a target="_blank" href={`https://testnet.algoexplorer.io/address/${nft.address}`}>{nft.address}</a></div>
-            </div>
-            <div class="text-gray-300 mt-2 font-semibold">price/day</div>
-                <div class="w-72">
-                    <div class="relative h-10 w-full min-w-[200px]">
-                        <div
-                            class="absolute top-2/4 -translate-x-4 right-3 grid h-5 w-5 -translate-y-2/4 place-items-center text-blue-gray-500"
-                        >
-                            <p>ALGO</p>
-                        </div>
-                        <input
-                            class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-pink-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
-                            placeholder="0"
-                            value=1
-                            type="number"
-                        />
+                <div class="text-sm text-gray-400 break-words">
+                    <a
+                        target="_blank"
+                        href={`https://testnet.algoexplorer.io/address/${nft.address}`}
+                        >{nft.address}</a
+                    >
                 </div>
             </div>
-            <div class="text-gray-300 mt-2 font-semibold">deposit</div>
+            <div class="text-gray-300 mt-2 font-semibold">Price/Day</div>
+            <div class="w-72">
+                <div class="relative h-10 w-full min-w-[200px]">
+                    <div
+                        class="absolute top-2/4 -translate-x-4 right-3 grid h-5 w-5 -translate-y-2/4 place-items-center text-blue-gray-500"
+                    >
+                        <p>ALGO</p>
+                    </div>
+                    <input
+                        class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-pink-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+                        placeholder="0"
+                        value="1"
+                        type="number"
+                    />
+                </div>
+            </div>
+            <div class="text-gray-300 mt-2 font-semibold">Deposit</div>
             <div class="">
                 <div class="w-72">
                     <div class="relative h-10 w-full min-w-[200px]">
@@ -93,7 +106,7 @@
                         </div>
                         <input
                             class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-pink-500 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
-                            value=1
+                            value="1"
                             type="number"
                         />
                     </div>
@@ -102,25 +115,26 @@
         </div>
     </div>
     <div class="flex flex-row justify-between">
-    <div class="text-lg flex-grow mt-8 mb-2">1</div>
-    <div class="text-lg flex-grow mt-8 mb-2">max rent period: {currDays}</div>
-    <div class="text-lg mt-8 mb-2">180</div>
-</div>
+        <div class="text-lg flex-grow mt-8 mb-2">1</div>
+        <div class="text-lg flex-grow mt-8 mb-2">
+            Max rent period: {currDays}
+        </div>
+        <div class="text-lg mt-8 mb-2">180</div>
+    </div>
     <input
-    bind:value={currDays}
-    class="w-full bg-gray-900"
-    type="range"
-    min={1}
-    max={180}
-/>
+        bind:value={currDays}
+        class="w-full bg-gray-900"
+        type="range"
+        min={1}
+        max={180}
+    />
 
     <div class="flex flex-col">
         <div class="max-w-md text-sm text-gray-300 my-5">
             By checking this box, you agree to our <a
                 class="text-red-500 font-bold"
                 href="/termsconditions"
-                on:click={() => modals.close(modalID)}
-                >terms and conditions</a
+                on:click={() => modals.close(modalID)}>terms and conditions</a
             >
         </div>
         <div class="flex justify-between">
@@ -130,12 +144,14 @@
                     I accept the terms and conditions
                 </p>
             </div>
-                <Button
+            <Button
                 disabled={!isAccepted}
                 text="List"
                 onClick={lendFlow}
-                className={!isAccepted ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'}
-                />
+                className={!isAccepted
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'opacity-100 cursor-pointer'}
+            />
         </div>
     </div>
 </div>
