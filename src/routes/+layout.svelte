@@ -1,6 +1,6 @@
 <script>
-    import "../app.css";
-    import Modal from "$lib/components/Modals/Modal.svelte";
+    import '../app.css'
+    import Modal from '$lib/components/Modals/Modal.svelte'
 </script>
 
 <svelte:head>

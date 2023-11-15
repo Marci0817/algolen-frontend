@@ -1,22 +1,22 @@
 <script lang="ts">
-    import type { AlgolenListing } from "$lib/utils/types";
-    import { openRentModal } from "./Modals/modal";
-    import Button from "./shared/Button.svelte";
-    import { microAlgos } from "@algorandfoundation/algokit-utils";
+    import type { AlgolenListing } from '$lib/utils/types'
+    import { openRentModal } from './Modals/modal'
+    import Button from './shared/Button.svelte'
+    import { microAlgos } from '@algorandfoundation/algokit-utils'
 
     export let data: AlgolenListing = {
         asset_id: 0,
-        name: "Loading...",
-        url: "",
+        name: 'Loading...',
+        url: '',
         deposit: 0,
         price_per_day: 0,
         max_duration_in_days: 0,
-        owner: "",
-    };
+        owner: '',
+    }
 
     const handleRentButtonClick = () => {
-        openRentModal(data);
-    };
+        openRentModal(data)
+    }
 </script>
 
 <div
@@ -25,7 +25,7 @@
     <figure class="">
         <img
             src={data.url}
-            alt={data.asset_id == 0 ? "Loading..." : data.asset_id.toString()}
+            alt={data.asset_id == 0 ? 'Loading...' : data.asset_id.toString()}
             class="h-48 w-full rounded-t-lg"
         />
     </figure>
@@ -39,9 +39,9 @@
                     <p class="font-semibold text-gray-400">fee</p>
                     <p class="ml-3">
                         {#if data.price_per_day}
-                        {microAlgos(data.price_per_day).algos}
+                            {microAlgos(data.price_per_day).algos}
                         {:else}
-                        0
+                            0
                         {/if}
                         <span class="font-semibold">ALGO</span>
                     </p>
@@ -50,9 +50,10 @@
                     <p class="font-semibold text-gray-400">depo</p>
                     <p class="ml-3">
                         {#if data.deposit}
-                            {microAlgos(data.deposit).algos} <span class="font-semibold">ALGO</span>
+                            {microAlgos(data.deposit).algos}
+                            <span class="font-semibold">ALGO</span>
                         {:else}
-                        0 <span class="font-semibold">ALGO</span>
+                            0 <span class="font-semibold">ALGO</span>
                         {/if}
                     </p>
                 </div>

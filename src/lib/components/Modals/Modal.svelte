@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { fade } from "svelte/transition";
-    import { clickOutside } from "$lib/utils/clickOutside";
-    import { modals } from "./modal";
+    import { fade } from 'svelte/transition'
+    import { clickOutside } from '$lib/utils/clickOutside'
+    import { modals } from './modal'
 </script>
 
 {#if $modals.length > 0}

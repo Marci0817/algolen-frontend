@@ -1,8 +1,8 @@
 <script lang="ts">
-    export let onClick: () => void;
-    export let text: string;
-    export let className: string = "";
-    export let disabled = false;
+    export let onClick: () => void
+    export let text: string
+    export let className: string = ''
+    export let disabled = false
 </script>
 
 <button

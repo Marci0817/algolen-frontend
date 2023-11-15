@@ -1,22 +1,22 @@
 <script lang="ts">
-    import { walletAddress } from "$lib/stores/walletStore";
-    import { modals } from "$lib/components/Modals/modal";
-    import WalletSwitcher from "$lib/components/Modals/WalletSwitcher.svelte";
+    import { walletAddress } from '$lib/stores/walletStore'
+    import { modals } from '$lib/components/Modals/modal'
+    import WalletSwitcher from '$lib/components/Modals/WalletSwitcher.svelte'
 
     function walletConnect() {
-        modals.push(WalletSwitcher, {});
+        modals.push(WalletSwitcher, {})
     }
 
     function walletDisconnect() {
-        walletAddress?.handleDisconnectWalletClick();
+        walletAddress?.handleDisconnectWalletClick()
     }
 
     function copyWallet() {
         navigator.clipboard.writeText(
-            typeof walletAddress?.getFormattedValue() === "string"
+            typeof walletAddress?.getFormattedValue() === 'string'
                 ? walletAddress.getValue()
-                : ""
-        );
+                : ''
+        )
     }
 </script>
 

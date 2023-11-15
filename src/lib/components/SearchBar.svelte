@@ -1,12 +1,12 @@
 <script>
-    import Button from "./shared/Button.svelte";
-    export let onSearch;
-    let searchTerm = "";
+    import Button from './shared/Button.svelte'
+    export let onSearch
+    let searchTerm = ''
 
-    export let className = "";
+    export let className = ''
 
     function handleSearch() {
-        onSearch(searchTerm);
+        onSearch(searchTerm)
     }
 </script>
 
