@@ -93,7 +93,7 @@ export class AlgolenClient {
         })
     }
 
-    async rentNFT(assetId: number, durationInDays: number, pricePerDay: number) {
+    async rentNFT(assetId: number, durationInDays: number, pricePerDay: number, owner: string) {
         const txn = await transferAlgos(
             {
                 from: this.signer,
@@ -108,6 +108,7 @@ export class AlgolenClient {
             "methodArgs": [txn.transaction, durationInDays],
             "boxes": [{ "appId": this.app_id, "name": algosdk.encodeUint64(assetId) }],
             "assets": [assetId],
+            "accounts": [owner]
         })
     }
     async returnNFT(assetId: number) {
