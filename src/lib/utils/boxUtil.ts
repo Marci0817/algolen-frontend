@@ -22,7 +22,6 @@ export function convertToIpfsIo(url) {
 
         // If it's an IPFS URL, put it behind ipfs.io
         const hash = url.replace("ipfs://", "");
-        console.log(hash);
         return `https://ipfs.io/ipfs/${hash}`;
     }
     else {
