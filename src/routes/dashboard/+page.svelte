@@ -16,6 +16,7 @@
     import { alerts } from '$lib/stores/alertStore'
     import PlaceholderNFT from '$lib/assets/placeholderNFT.png'
     import { loader } from "$lib/stores/loaderStore";
+    import { convertToIpfsIo } from '$lib/utils/boxUtil'
 
 
     const algod = new algosdk.Algodv2(
@@ -94,11 +95,12 @@
                         assetInfo.asset.params.decimals == 0 &&
                         assetBalanceForAddr != 0
                     ) {
+                        let url = convertToIpfsIo(assetInfo.asset.params.url);
                         assets.push({
                             asset_id: item['asset-id'],
                             address: assetInfo.asset.params.creator,
                             name: assetInfo.asset.params.name,
-                            url: assetInfo.asset.params.url
+                            url: url,
                         })
                     }
                 }

@@ -9,6 +9,27 @@ const ALGOLENLISTINGCODEC = algosdk.ABIType.from(
 )
 const ALGOLENRENTCODEC = algosdk.ABIType.from('(uint64,uint64,address,address)')
 
+function isIPFSUrl(url) {
+    // Regular expression for matching a generic IPFS URL with optional '#' symbol
+    const ipfsRegex = /^ipfs:\/\/(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})([/?#][-a-zA-Z0-9@:%_+.~#?&//=]*)*$/;
+    return ipfsRegex.test(url);
+}
+
+
+export function convertToIpfsIo(url) {
+    if (isIPFSUrl(url)) {
+        console.log(url);
+
+        // If it's an IPFS URL, put it behind ipfs.io
+        const hash = url.replace("ipfs://", "");
+        return `https://ipfs.io/ipfs/${hash}`;
+    }
+    else {
+        // If it's not an IPFS URL, return the original URL
+        return url;
+    }
+}
+
 export async function getAlgolenListingBoxes(
     algodClient: algosdk.Algodv2,
     indexerClient: algosdk.Indexer
@@ -29,13 +50,7 @@ export async function getAlgolenListingBoxes(
             let decodedValue = ALGOLENLISTINGCODEC.decode(encodedValue.value)
             let decodedBoxName = EncodedUInt64ToString(boxName)
             const asset = await fetchAsset(decodedBoxName, indexerClient)
-            let url;
-            try {
-                new URL(asset.params.url);
-                url = asset.params.url;
-            } catch(ex) {
-                url = PlaceholderNFT
-            }
+            let url = convertToIpfsIo(asset.params.url);
             resultset.push({
                 asset_id: parseInt(decodedBoxName),
                 name: asset.params.name,
@@ -46,7 +61,7 @@ export async function getAlgolenListingBoxes(
                 owner: decodedValue[3],
             })
         } catch (ex) {
-            
+
         }
     }
     return resultset
@@ -72,13 +87,7 @@ export async function getAlgolenRentBoxes(
             let decodedValue = ALGOLENRENTCODEC.decode(encodedValue.value)
             let decodedBoxName = EncodedUInt64ToString(boxName)
             const asset = await fetchAsset(decodedBoxName, indexerClient)
-            let url;
-            try {
-                new URL(asset.params.url)
-                url = asset.params.url
-            } catch(ex) {
-                url = PlaceholderNFT
-            }
+            let url = convertToIpfsIo(asset.params.url);
             resultset.push({
                 asset_id: parseInt(decodedBoxName),
                 name: asset.params.name,
