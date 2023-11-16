@@ -100,7 +100,7 @@
                             asset_id: item['asset-id'],
                             address: assetInfo.asset.params.creator,
                             name: assetInfo.asset.params.name,
-                            url: assetInfo.asset.params.url
+                            url: url,
                         })
                     }
                 }
